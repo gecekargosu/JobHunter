@@ -31,7 +31,8 @@ fun DashboardScreen(
     viewModel: DashboardViewModel,
     onNavigateToSearch: () -> Unit,
     onNavigateToCompanies: () -> Unit,
-    onNavigateToEmail: () -> Unit
+    onNavigateToEmail: () -> Unit,
+    onNavigateToApplications: () -> Unit
 ) {
     val companyCount by viewModel.companyCount.collectAsState()
     val contactableCount by viewModel.contactableCount.collectAsState()
@@ -186,12 +187,23 @@ fun DashboardScreen(
         }
 
         item {
-            QuickActionCard(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                title = "E-posta Gönder",
-                icon = Icons.Default.Email,
-                onClick = onNavigateToEmail
-            )
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                QuickActionCard(
+                    modifier = Modifier.weight(1f),
+                    title = "E-posta Gönder",
+                    icon = Icons.Default.Email,
+                    onClick = onNavigateToEmail
+                )
+                QuickActionCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Başvurular",
+                    icon = Icons.Default.Assignment,
+                    onClick = onNavigateToApplications
+                )
+            }
         }
 
         // Recent Companies

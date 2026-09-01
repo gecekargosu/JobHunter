@@ -3,12 +3,28 @@ package com.jobhunter.app.data
 import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.jobhunter.app.models.ApplicationStatus
 import com.jobhunter.app.models.Education
 import com.jobhunter.app.models.WorkExperience
 
 class Converters {
 
     private val gson = Gson()
+
+    // ApplicationStatus converters
+    @TypeConverter
+    fun fromApplicationStatus(status: ApplicationStatus): String {
+        return status.name
+    }
+
+    @TypeConverter
+    fun toApplicationStatus(value: String): ApplicationStatus {
+        return try {
+            ApplicationStatus.valueOf(value)
+        } catch (e: Exception) {
+            ApplicationStatus.APPLIED
+        }
+    }
 
     @TypeConverter
     fun fromWorkExperienceList(value: List<WorkExperience>): String {

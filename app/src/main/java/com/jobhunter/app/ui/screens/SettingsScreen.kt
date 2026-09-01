@@ -13,25 +13,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jobhunter.app.services.AiService
 import com.jobhunter.app.services.GmailService
+import com.jobhunter.app.services.LinkedInService
 
 @Composable
 fun SettingsScreen(
     gmailService: GmailService,
     aiService: AiService
 ) {
+    val context = LocalContext.current
+    val linkedInService = remember { LinkedInService(context) }
+    
     var showGmailDialog by remember { mutableStateOf(false) }
     var showAiDialog by remember { mutableStateOf(false) }
+    var showLinkedInDialog by remember { mutableStateOf(false) }
     var showGmailHelp by remember { mutableStateOf(false) }
     var showAiHelp by remember { mutableStateOf(false) }
     var gmailAddress by remember { mutableStateOf(gmailService.getConfig().gmailAddress) }
     var apiKey by remember { mutableStateOf(aiService.getApiKey()) }
     var apiProvider by remember { mutableStateOf(aiService.getProvider()) }
+    var linkedInUrl by remember { mutableStateOf(linkedInService.getLinkedInUrl()) }
 
     LazyColumn(
         modifier = Modifier
@@ -506,6 +513,91 @@ fun SettingsScreen(
             }
         }
 
+        // ===== LINKEDIN SECTION =====
+        item {
+            Spacer(modifier = Modifier.height(8.dp))
+            SectionHeader(title = "💼 LinkedIn Entegrasyonu")
+        }
+
+        item {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                if (linkedInService.isConfigured()) Icons.Default.CheckCircle else Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = if (linkedInService.isConfigured()) Color(0xFF4CAF50) else Color(0xFFFF9800)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = if (linkedInService.isConfigured()) "LinkedIn Bağlı" else "LinkedIn Bağlı Değil",
+                                    fontWeight = FontWeight.Medium
+                                )
+                                if (linkedInService.isConfigured()) {
+                                    Text(
+                                        text = linkedInService.getLinkedInUrl(),
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1
+                                    )
+                                }
+                            }
+                        }
+
+                        if (linkedInService.isConfigured()) {
+                            TextButton(
+                                onClick = { linkedInService.disconnect() },
+                                colors = ButtonDefaults.textButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Text("Kes")
+                            }
+                        } else {
+                            Button(onClick = { showLinkedInDialog = true }) {
+                                Text("Bağla")
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // LinkedIn Help
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                text = "📌 LinkedIn Ne İşe Yarar?",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "• LinkedIn profilinizden bilgi çeker\n• İş ilanlarını tarar\n• Doğrudan LinkedIn'de arama yapar\n• Profil bilgilerinizi CV'nize aktarır",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
         // ===== ABOUT SECTION =====
         item {
             Spacer(modifier = Modifier.height(8.dp))
@@ -789,6 +881,82 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showAiDialog = false }) {
+                    Text("İptal")
+                }
+            }
+        )
+    }
+}
+
+// ===== LINKEDIN DIALOG =====
+    if (showLinkedInDialog) {
+        AlertDialog(
+            onDismissRequest = { showLinkedInDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Link, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("LinkedIn Bağla")
+                }
+            },
+            text = {
+                Column {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                        )
+                    ) {
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            Text(
+                                text = "📌 Adım Adım Bağlantı",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "1. LinkedIn profilinizi tarayıcıda açın\n2. Adres çubuğundaki URL'yi kopyalayın\n3. Aşağıya yapıştırın",
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Text(
+                        text = "LinkedIn Profil URL'si",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = linkedInUrl,
+                        onValueChange = { linkedInUrl = it },
+                        placeholder = { Text("https://www.linkedin.com/in/...") },
+                        leadingIcon = { Icon(Icons.Default.Link, contentDescription = null) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        linkedInService.saveLinkedInUrl(linkedInUrl)
+                        showLinkedInDialog = false
+                    },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text("Kaydet")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLinkedInDialog = false }) {
                     Text("İptal")
                 }
             }

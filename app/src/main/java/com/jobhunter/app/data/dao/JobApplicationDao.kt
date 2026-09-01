@@ -4,6 +4,7 @@ import androidx.room.*
 import com.jobhunter.app.models.ApplicationStatus
 import com.jobhunter.app.models.JobApplication
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 @Dao
 interface JobApplicationDao {
@@ -55,8 +56,26 @@ interface JobApplicationDao {
         ORDER BY month DESC 
         LIMIT 12
     """)
-    fun getApplicationsByMonth(): Flow<List<MonthlyApplications>>
+    fun getApplicationsByMonthRaw(): List<MonthlyApplicationsRaw>
+
+    // Helper function to get monthly applications
+    fun getApplicationsByMonth(): Flow<List<MonthlyApplications>> {
+        // This is a simplified version - in production, use a proper query
+        return getAllApplications().map { applications ->
+            applications.groupBy {
+                java.text.SimpleDateFormat("yyyy-MM", java.util.Locale.getDefault())
+                    .format(java.util.Date(it.appliedAt))
+            }.map { (month, apps) ->
+                MonthlyApplications(month, apps.size)
+            }.sortedByDescending { it.month }
+        }
+    }
 }
+
+data class MonthlyApplicationsRaw(
+    val month: String,
+    val count: Int
+)
 
 data class MonthlyApplications(
     val month: String,

@@ -1,0 +1,108 @@
+==============================================
+         JOBHUNTER HATA LİSTESİ
+==============================================
+
+Tarih: 1 Eylül 2026
+Analiz: Derinlemesine kod ve kullanıcı deneyimi analizi
+
+----------------------------------------------
+KRİTİK HATALAR (Build.bozan)
+----------------------------------------------
+
+1. ❌ ApplicationTrackingScreen'de viewModel import eksik
+   - Dosya: MainActivity.kt
+   - Satır: 140
+   - Sorun: `val applicationTrackingViewModel: ApplicationTrackingViewModel = viewModel()`
+   - AndroidViewModel适用于AndroidViewModel, normal viewModel() kullanılamaz
+   - Düzeltme: Factory kullanmalı veya viewModel() parametre geçmeli
+
+2. ❌ JobApplicationDao.getMonthlyApplications() Room uyumsuz
+   - Dosya: JobApplicationDao.kt
+   - Sorun: RoomQuery result tipi Flow<List<MonthlyApplications>> olamaz
+   - Room sadece Entity veya basit tipler döndürebilir
+   - Düzeltme: RoomProxy kullanmalı veya @RawQuery
+
+3. ❌ ApplicationStatus Room'da saklanamaz
+   - Dosya: JobApplication.kt
+   - Sorun: Enum class Room tarafından otomatik çevrilemez
+   - TypeConverter gerekli
+   - Düzeltme: TypeConverter ekle veya String olarak sakla
+
+ORTA SEVİYE HATALAR (Çalışan ama hatalı)
+
+4. ⚠️ LinkedInService scraping engagementLinkedIn engagement engagement LinkedIn engagement
+   - Dosya: LinkedInService.kt
+   - Sorun: LinkedIn anti-bot koruması var, scraping çalışmaz
+   - Düzeltme: OAuth API kullanmalı veya manuel giriş
+
+5. ⚠️ ATS Service calculateKeywordScore deepeining
+   - Dosya: AtsService.kt
+   - Sorun: Kelime analizi çok basit, false positive'ler olabilir
+   - Düzeltme: NLP kütüphanesi kullanmalı
+
+6. ⚠️ ApplicationTrackingScreen FilterChip mobilde küçük
+   - Dosya: ApplicationTrackingScreen.kt
+   - Sorun: Mobilde FilterChip'ler çok küçük, tıklaması zor
+   - Düzeltme: Daha büyük chip'ler veya segment control
+
+7. ⚠️ SettingsScreen'de LinkedIn bölümü yok
+   - Dosya: SettingsScreen.kt
+   - Sorun: Yeni eklenen LinkedIn servisi için ayar ekranı yok
+   - Düzeltme: LinkedIn ayarları ekle
+
+8. ⚠️ Dashboard'da Başvuru Takibi kısayolu yok
+   - Dosya: DashboardScreen.kt
+   - Sorun: Yeni eklenen özellik için kısayol yok
+   - Düzeltme: Dashboard'a ekle
+
+UX HATALARI (Kullanıcı deneyimi)
+
+9. 🎨 ApplicationTrackingScreen'de "Yeni Başvuru" butonu yok
+   - Dosya: ApplicationTrackingScreen.kt
+   - Sorun: Kullanıcı yeni başvuru oluşturamıyor
+   - Düzeltme: FAB veya buton ekle
+
+10. 🎨 ATS skoru gösterimi yok
+    - Dosya: EmailScreen.kt
+    - Sorun: E-posta gönderirken ATS skoru gösterilmiyor
+    - Düzeltme: ATS skoru göster
+
+11. 🎨 LinkedIn entegrasyonu için UI yok
+    - Dosya: Ayarlar ekranı
+    - Sorun: LinkedIn URL girişi için alan yok
+    - Düzeltme: LinkedIn ayarları ekle
+
+12. 🎨 Başvuru takibinde grafik yok
+    - Dosya: ApplicationTrackingScreen.kt
+    - Sorun: Aylık başvurular grafik olarak gösterilmiyor
+    - Düzeltme: Basit grafik ekle
+
+----------------------------------------------
+SİMLASYON BAZLI HATALAR
+----------------------------------------------
+
+13. 🔴 Kullanıcı "LinkedIn'de Ara" dediğinde hata
+    - LinkedInService.openLinkedInJobSearch() çağrılıyor
+    - Ama LinkedIn login gerektirir
+    - Düzeltme: Tarayıcıda aç, uygulamada değil
+
+14. 🔴 Kullanıcı ATS skoru hesapladığında boş kalıyor
+    - AtsService boş requiredSkills ile çalışıyor
+    - Düzeltme: Varsayılan beceriler ekle
+
+15. 🔴 Kullanıcı başvuru durumu güncellediğinde hata
+    - updateApplicationStatus() fonksiyonu çağrılıyor
+    - Ama UI'dan tetiklenmiyor
+    - Düzeltme: DropdownMenu bağlanmalı
+
+----------------------------------------------
+TOPHAM HATA ÖZETİ
+----------------------------------------------
+
+Kritik:     3
+Orta:       5
+UX:         4
+Simülasyon: 3
+TOPLAM:     15
+
+==============================================

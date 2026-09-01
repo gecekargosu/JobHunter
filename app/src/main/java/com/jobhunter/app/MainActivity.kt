@@ -109,7 +109,8 @@ fun JobHunterApp() {
                     viewModel = dashboardViewModel,
                     onNavigateToSearch = { navController.navigate(Screen.CompanySearch.route) },
                     onNavigateToCompanies = { navController.navigate(Screen.Companies.route) },
-                    onNavigateToEmail = { navController.navigate(Screen.Email.route) }
+                    onNavigateToEmail = { navController.navigate(Screen.Email.route) },
+                    onNavigateToApplications = { navController.navigate(Screen.ApplicationTracking.route) }
                 )
             }
 
@@ -133,7 +134,8 @@ fun JobHunterApp() {
             }
 
             composable(Screen.ApplicationTracking.route) {
-                val applicationTrackingViewModel: ApplicationTrackingViewModel = viewModel()
+                val factory = JobHunterViewModelFactory(context.applicationContext as android.app.Application)
+                val applicationTrackingViewModel: ApplicationTrackingViewModel = viewModel(factory = factory)
                 ApplicationTrackingScreen(viewModel = applicationTrackingViewModel)
             }
 
