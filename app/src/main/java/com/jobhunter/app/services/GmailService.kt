@@ -146,8 +146,9 @@ class GmailService(private val context: Context) {
 
     /**
      * Send email using device's email app (fallback)
+     * @return true if email app was opened, false otherwise
      */
-    fun sendEmailViaDevice(to: String, subject: String, body: String) {
+    fun sendEmailViaDevice(to: String, subject: String, body: String): Boolean {
         try {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
@@ -160,6 +161,7 @@ class GmailService(private val context: Context) {
             // Check if there's an email app available
             if (intent.resolveActivity(context.packageManager) != null) {
                 context.startActivity(Intent.createChooser(intent, "E-posta gönder"))
+                return true // Email app opened successfully
             } else {
                 // No email app, try with ACTION_SEND
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
@@ -169,12 +171,18 @@ class GmailService(private val context: Context) {
                     putExtra(Intent.EXTRA_TEXT, body)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
-                context.startActivity(Intent.createChooser(sendIntent, "E-posta gönder"))
+                if (sendIntent.resolveActivity(context.packageManager) != null) {
+                    context.startActivity(Intent.createChooser(sendIntent, "E-posta gönder"))
+                    return true // Email app opened successfully
+                }
             }
+            // No email app available
+            android.util.Log.w("GmailService", "E-posta uygulaması bulunamadı")
+            return false
         } catch (e: Exception) {
-            // No email app available at all
-            android.util.Log.e("GmailService", "E-posta uygulaması bulunamadı", e)
-            throw Exception("E-posta göndermek için bir e-posta uygulaması gerekli. Lütfen Gmail veya başka bir e-posta uygulaması kurun.")
+            // Error opening email app
+            android.util.Log.e("GmailService", "E-posta uygulaması açılamadı", e)
+            return false
         }
     }
 

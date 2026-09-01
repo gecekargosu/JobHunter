@@ -263,7 +263,6 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     // Fallback: open device email app
                     gmailService.sendEmailViaDevice(to, subject, body)
-                    true
                 }
 
                 // Save to database
@@ -313,7 +312,6 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
                         gmailService.sendEmail(draft)
                     } else {
                         gmailService.sendEmailViaDevice(company.email, subject, coverLetter)
-                        true
                     }
 
                     val sentEmail = SentEmail(
