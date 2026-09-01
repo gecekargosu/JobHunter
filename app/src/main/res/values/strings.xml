@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">JobHunter</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Ana Ekran</string>
+    <string name="nav_search">Şirket Ara</string>
+    <string name="nav_companies">Şirketler</string>
+    <string name="nav_emails">E-postalar</string>
+    <string name="nav_cv">CV\'m</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">JobHunter</string>
+    <string name="dashboard_subtitle">İş Arama Asistanın</string>
+    <string name="dashboard_companies_found">Bulunan Şirket</string>
+    <string name="dashboard_emails_sent">Gönderilen E-posta</string>
+    <string name="dashboard_active_campaigns">Aktif Kampanya</string>
+    <string name="dashboard_quick_search">Hızlı Arama</string>
+    <string name="dashboard_search_hint">Şirket, sektör veya anahtar kelime...</string>
+
+    <!-- Company Search -->
+    <string name="search_title">Şirket Ara</string>
+    <string name="search_hint">Şirket adı, sektör veya konum...</string>
+    <string name="search_filter">Filtrele</string>
+    <string name="search_location">Konum</string>
+    <string name="search_sector">Sektör</string>
+
+    <!-- Email -->
+    <string name="email_title">E-posta Gönder</string>
+    <string name="email_to">Alıcı</string>
+    <string name="email_subject">Konu</string>
+    <string name="email_body">İçerik</string>
+    <string name="email_send">Gönder</string>
+    <string name="email_draft">Taslak</string>
+
+    <!-- CV -->
+    <string name="cv_title">Özgeçmişim</string>
+    <string name="cv_personal_info">Kişisel Bilgiler</string>
+    <string name="cv_experience">Deneyimler</string>
+    <string name="cv_education">Eğitim</string>
+    <string name="cv_skills">Yetenekler</string>
+    <string name="cv_summary">Özet</string>
+    <string name="cv_save">Kaydet</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_gmail">Gmail Hesabı</string>
+    <string name="settings_gmail_connect">Gmail Bağla</string>
+    <string name="settings_gmail_disconnect">Bağlantıyı Kes</string>
+    <string name="settings_ai_api">AI API Anahtarı</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_theme">Tema</string>
+
+    <!-- General -->
+    <string name="loading">Yükleniyor...</string>
+    <string name="error">Hata</string>
+    <string name="success">Başarılı</string>
+    <string name="cancel">İptal</string>
+    <string name="save">Kaydet</string>
+    <string name="delete">Sil</string>
+    <string name="edit">Düzenle</string>
+    <string name="add">Ekle</string>
+    <string name="search">Ara</string>
+    <string name="no_results">Sonuç bulunamadı</string>
+    <string name="confirm">Onayla</string>
+</resources>
