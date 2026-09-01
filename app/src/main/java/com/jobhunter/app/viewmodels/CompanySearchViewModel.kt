@@ -8,15 +8,21 @@ import com.jobhunter.app.models.Company
 import com.jobhunter.app.models.CompanySearchResult
 import com.jobhunter.app.services.AiService
 import com.jobhunter.app.services.WebScraperService
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class CompanySearchViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val logger = AppLogger.getInstance(application)
     private val database = JobHunterDatabase.getDatabase(application)
     private val companyDao = database.companyDao()
-    private val scraperService = WebScraperService()
+    private val scraperService = WebScraperService(logger)
     private val aiService = AiService(application)
+    
+    init {
+        logger.logScreenOpen("Şirket Arama")
+    }
 
     // Search state
     private val _searchQuery = MutableStateFlow("")
@@ -60,6 +66,9 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
     fun searchCompanies() {
         val query = _searchQuery.value.trim()
         if (query.isEmpty()) return
+        
+        logger.logUserAction("Şirket Arama", query)
+        val startTime = System.currentTimeMillis()
 
         viewModelScope.launch {
             _isSearching.value = true
@@ -72,6 +81,7 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
                     query = "$query ${_locationFilter.value}",
                     limit = 20
                 )
+                logger.d("Search", "DuckDuckGo: ${results.size} sonuç")
 
                 // Also try Google
                 val googleResults = scraperService.searchCompaniesGoogle(
@@ -79,14 +89,18 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
                     location = _locationFilter.value,
                     limit = 10
                 )
+                logger.d("Search", "Google: ${googleResults.size} sonuç")
 
                 // Merge and deduplicate
                 val allResults = (results + googleResults)
                     .distinctBy { it.domain }
                     .take(20)
 
+                val duration = System.currentTimeMillis() - startTime
+                logger.i("Search", "Arama tamamlandı: ${allResults.size} şirket (${duration}ms)")
                 _searchResults.value = allResults
             } catch (e: Exception) {
+                logger.logError("Search", "Şirket Arama", e.message ?: "Bilinmeyen hata", e)
                 _searchError.value = "Arama sırasında hata: ${e.message}"
             } finally {
                 _isSearching.value = false
@@ -128,9 +142,12 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
      */
     fun saveCompany(result: CompanySearchResult) {
         viewModelScope.launch {
+            logger.logUserAction("Şirket Kaydetme", result.name)
+            
             // Check if company already exists by domain
             val existing = companyDao.getCompanyByDomain(result.domain)
             if (existing != null) {
+                logger.w("Database", "Şirket zaten kayıtlı: ${existing.name}")
                 _searchError.value = "Bu şirket zaten kayıtlı: ${existing.name}"
                 return@launch
             }
@@ -147,6 +164,7 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
                 linkedinUrl = result.linkedinUrl
             )
             companyDao.insertCompany(company)
+            logger.logDatabase("INSERT", "companies", result.name)
             _searchError.value = null // Clear any previous error
         }
     }

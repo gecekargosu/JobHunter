@@ -6,6 +6,7 @@ import android.net.Uri
 import com.google.gson.Gson
 import com.jobhunter.app.models.EmailConfig
 import com.jobhunter.app.models.EmailDraft
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,6 +17,7 @@ import java.util.Base64
 
 class GmailService(private val context: Context) {
 
+    private val logger = AppLogger.getInstance(context)
     private val gson = Gson()
     private val prefs = context.getSharedPreferences("gmail_prefs", Context.MODE_PRIVATE)
 
@@ -67,9 +69,12 @@ class GmailService(private val context: Context) {
      * In production, you'd implement full OAuth 2.0 flow
      */
     suspend fun sendEmail(draft: EmailDraft): Boolean = withContext(Dispatchers.IO) {
+        logger.logEmailSend(draft.to, draft.subject, "Gmail API", false) // Başlangıç
+        val startTime = System.currentTimeMillis()
         try {
             val config = getConfig()
             if (!config.isConnected || config.accessToken.isEmpty()) {
+                logger.w("Gmail", "Gmail bağlı değil veya token eksik")
                 return@withContext false
             }
 
@@ -101,8 +106,12 @@ class GmailService(private val context: Context) {
                 .build()
 
             val response = client.newCall(request).execute()
+            val duration = System.currentTimeMillis() - startTime
+            logger.logEmailSend(draft.to, draft.subject, "Gmail API", response.isSuccessful)
+            logger.d("Gmail", "Gmail API yanıtı: ${response.code} (${duration}ms)")
             response.isSuccessful
         } catch (e: Exception) {
+            logger.logError("Gmail", "E-posta gönderme", e.message ?: "Bilinmeyen hata", e)
             e.printStackTrace()
             false
         }
@@ -149,6 +158,7 @@ class GmailService(private val context: Context) {
      * @return true if email app was opened, false otherwise
      */
     fun sendEmailViaDevice(to: String, subject: String, body: String): Boolean {
+        logger.logEmailSend(to, subject, "Cihaz Uygulaması", false) // Başlangıç
         try {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
@@ -173,15 +183,16 @@ class GmailService(private val context: Context) {
                 }
                 if (sendIntent.resolveActivity(context.packageManager) != null) {
                     context.startActivity(Intent.createChooser(sendIntent, "E-posta gönder"))
+                    logger.logEmailSend(to, subject, "Cihaz Uygulaması", true)
                     return true // Email app opened successfully
                 }
             }
             // No email app available
-            android.util.Log.w("GmailService", "E-posta uygulaması bulunamadı")
+            logger.w("Gmail", "E-posta uygulaması bulunamadı")
             return false
         } catch (e: Exception) {
             // Error opening email app
-            android.util.Log.e("GmailService", "E-posta uygulaması açılamadı", e)
+            logger.logError("Gmail", "E-posta uygulaması açma", e.message ?: "Bilinmeyen hata", e)
             return false
         }
     }

@@ -21,17 +21,28 @@ import com.jobhunter.app.ui.navigation.Screen
 import com.jobhunter.app.ui.navigation.bottomNavItems
 import com.jobhunter.app.ui.screens.*
 import com.jobhunter.app.ui.theme.JobHunterTheme
+import com.jobhunter.app.utils.AppLogger
 import com.jobhunter.app.viewmodels.*
 
 class MainActivity : ComponentActivity() {
+    
+    private lateinit var logger: AppLogger
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        logger = AppLogger.getInstance(this)
+        logger.i("App", "Uygulama başlatıldı")
         enableEdgeToEdge()
         setContent {
             JobHunterTheme {
                 JobHunterApp()
             }
         }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        logger.i("App", "Uygulama kapatıldı")
     }
 }
 
@@ -51,6 +62,7 @@ fun JobHunterApp() {
     val context = androidx.compose.ui.platform.LocalContext.current
     val gmailService = remember { GmailService(context) }
     val aiService = remember { AiService(context) }
+    val logger = remember { AppLogger.getInstance(context) }
 
     Scaffold(
         bottomBar = {
@@ -62,6 +74,7 @@ fun JobHunterApp() {
                         selected = currentRoute == screen.route,
                         onClick = {
                             if (currentRoute != screen.route) {
+                                logger.logButtonClick(screen.title, "NavigationBar")
                                 navController.navigate(screen.route) {
                                     popUpTo(navController.graph.startDestinationId) {
                                         saveState = true

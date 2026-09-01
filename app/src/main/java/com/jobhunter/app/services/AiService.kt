@@ -6,6 +6,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.jobhunter.app.models.Company
 import com.jobhunter.app.models.UserProfile
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class AiService(private val context: Context) {
 
+    private val logger = AppLogger.getInstance(context)
     private val gson = Gson()
     private val prefs = context.getSharedPreferences("ai_prefs", Context.MODE_PRIVATE)
     private val client = OkHttpClient.Builder()
@@ -185,6 +187,8 @@ Bu şirket hakkında kısa bir özet oluştur (2-3 cümle). Türkçe yaz.
     private suspend fun callAiApi(prompt: String): String = withContext(Dispatchers.IO) {
         val apiKey = getApiKey()
         val provider = getProvider()
+        val startTime = System.currentTimeMillis()
+        logger.logAiCall(provider, prompt.length, 0, false) // Başlangıç logu
 
         // Use JsonObject for proper JSON construction (prevents injection)
         val requestBody = when (provider) {
@@ -269,7 +273,7 @@ Bu şirket hakkında kısa bir özet oluştur (2-3 cümle). Türkçe yaz.
             }
 
             // Parse response based on provider
-            when (provider) {
+            val result = when (provider) {
                 "openai" -> {
                     val json = JsonParser.parseString(responseBody).asJsonObject
                     val choices = json.getAsJsonArray("choices")
@@ -283,6 +287,12 @@ Bu şirket hakkında kısa bir özet oluştur (2-3 cümle). Türkçe yaz.
                 }
                 else -> ""
             }
+            
+            val duration = System.currentTimeMillis() - startTime
+            logger.logAiCall(provider, prompt.length, result.length, true)
+            logger.d("AI", "API yanıtı alındı: ${result.length} karakter (${duration}ms)")
+            
+            result
         } finally {
             response.close() // Important: close response body to prevent memory leak
         }

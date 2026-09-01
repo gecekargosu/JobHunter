@@ -6,12 +6,15 @@ import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfDocument.PageInfo
 import android.os.Environment
 import com.jobhunter.app.models.UserProfile
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
 class PdfService(private val context: Context) {
+
+    private val logger = AppLogger.getInstance(context)
 
     companion object {
         private const val PAGE_WIDTH = 595 // A4 width in points (72 dpi)
@@ -25,6 +28,8 @@ class PdfService(private val context: Context) {
      * Generate a professional CV/Resume PDF
      */
     suspend fun generateCvPdf(profile: UserProfile): File = withContext(Dispatchers.IO) {
+        logger.i("PDF", "CV PDF oluşturuluyor: ${profile.firstName} ${profile.lastName}")
+        val startTime = System.currentTimeMillis()
         val document = PdfDocument()
 
         // Paint objects for text styling
@@ -356,6 +361,10 @@ class PdfService(private val context: Context) {
 
         document.close()
 
+        val duration = System.currentTimeMillis() - startTime
+        logger.logPdfGeneration(file.name, true, file.length())
+        logger.d("PDF", "PDF oluşturuldu: ${file.name} (${file.length()} bytes, ${duration}ms)")
+        
         file
     }
 

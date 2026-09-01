@@ -5,13 +5,19 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jobhunter.app.data.JobHunterDatabase
 import com.jobhunter.app.models.*
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val logger = AppLogger.getInstance(application)
     private val database = JobHunterDatabase.getDatabase(application)
     private val profileDao = database.userProfileDao()
+    
+    init {
+        logger.logScreenOpen("Profilim")
+    }
 
     // Current profile
     val profile: StateFlow<UserProfile?> = profileDao.getProfile()
@@ -50,6 +56,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         portfolioUrl: String,
         summary: String
     ) {
+        logger.logUserAction("Profil Güncelleme", "$firstName $lastName")
         viewModelScope.launch {
             val current = profileDao.getProfileSync() ?: UserProfile()
             profileDao.insertOrUpdateProfile(current.copy(
@@ -71,6 +78,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
      * Add work experience
      */
     fun addExperience(experience: WorkExperience) {
+        logger.logUserAction("Deneyim Ekleme", "${experience.company} - ${experience.position}")
         viewModelScope.launch {
             val current = profileDao.getProfileSync() ?: UserProfile()
             val updatedExperiences = current.experiences + experience
@@ -78,6 +86,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 experiences = updatedExperiences,
                 updatedAt = System.currentTimeMillis()
             ))
+            logger.logDatabase("UPDATE", "user_profiles", "Deneyim eklendi")
         }
     }
 
@@ -172,6 +181,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
      * Add a skill
      */
     fun addSkill(skill: String) {
+        logger.logUserAction("Yetenek Ekleme", skill)
         viewModelScope.launch {
             val current = profileDao.getProfileSync() ?: UserProfile()
             if (skill.isNotBlank() && !current.skills.contains(skill)) {
@@ -179,6 +189,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     skills = current.skills + skill,
                     updatedAt = System.currentTimeMillis()
                 ))
+                logger.logDatabase("UPDATE", "user_profiles", "Yetenek eklendi: $skill")
             }
         }
     }

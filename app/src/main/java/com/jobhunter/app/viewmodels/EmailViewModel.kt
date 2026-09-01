@@ -9,12 +9,14 @@ import androidx.lifecycle.viewModelScope
 import com.jobhunter.app.data.JobHunterDatabase
 import com.jobhunter.app.models.*
 import com.jobhunter.app.services.*
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 
 class EmailViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val logger = AppLogger.getInstance(application)
     private val database = JobHunterDatabase.getDatabase(application)
     private val emailDao = database.emailDao()
     private val companyDao = database.companyDao()
@@ -22,6 +24,10 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
     private val gmailService = GmailService(application)
     private val aiService = AiService(application)
     private val pdfService = PdfService(application)
+    
+    init {
+        logger.logScreenOpen("E-posta")
+    }
 
     // Gmail state
     val isGmailConnected: StateFlow<Boolean> = flow {
@@ -249,6 +255,9 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+        logger.logUserAction("E-posta Gönderme", to)
+        val startTime = System.currentTimeMillis()
+
         viewModelScope.launch {
             _isSending.value = true
             try {
@@ -258,6 +267,7 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
                     body = body
                 )
 
+                val method = if (gmailService.isConnected()) "Gmail API" else "Cihaz Uygulaması"
                 val success = if (gmailService.isConnected()) {
                     gmailService.sendEmail(draft)
                 } else {
@@ -275,11 +285,15 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
                     status = if (success) "sent" else "failed"
                 )
                 emailDao.insertSentEmail(sentEmail)
+                logger.logDatabase("INSERT", "sent_emails", to)
 
+                val duration = System.currentTimeMillis() - startTime
+                logger.logEmailSend(to, subject, method, success)
                 _sendResult.value = if (success) "E-posta gönderildi!" else "Gönderme başarısız"
 
                 // Don't clear form - let user decide if they want to send again
             } catch (e: Exception) {
+                logger.logError("Email", "E-posta gönderme", e.message ?: "Bilinmeyen hata", e)
                 _sendResult.value = "Hata: ${e.message}"
             } finally {
                 _isSending.value = false

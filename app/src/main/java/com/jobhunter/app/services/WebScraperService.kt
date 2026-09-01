@@ -1,6 +1,7 @@
 package com.jobhunter.app.services
 
 import com.jobhunter.app.models.CompanySearchResult
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -9,7 +10,7 @@ import org.jsoup.Jsoup
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
-class WebScraperService {
+class WebScraperService(private val logger: AppLogger? = null) {
     // Jsoup handles its own HTTP connections internally
 
     /**
@@ -20,7 +21,9 @@ class WebScraperService {
         location: String = "",
         limit: Int = 20
     ): List<CompanySearchResult> = withContext(Dispatchers.IO) {
+        logger?.logSearch(query, "Google", 0)
         val results = mutableListOf<CompanySearchResult>()
+        val startTime = System.currentTimeMillis()
 
         try {
             val searchQuery = if (location.isNotEmpty()) {
@@ -70,9 +73,12 @@ class WebScraperService {
                 }
             }
         } catch (e: Exception) {
+            logger?.logError("SCRAPER", "Google Arama", e.message ?: "Bilinmeyen hata", e)
             e.printStackTrace()
         }
 
+        val duration = System.currentTimeMillis() - startTime
+        logger?.logSearch(query, "Google", results.size)
         results.take(limit)
     }
 
@@ -83,7 +89,9 @@ class WebScraperService {
         query: String,
         limit: Int = 20
     ): List<CompanySearchResult> = withContext(Dispatchers.IO) {
+        logger?.logSearch(query, "DuckDuckGo", 0)
         val results = mutableListOf<CompanySearchResult>()
+        val startTime = System.currentTimeMillis()
 
         try {
             val searchQuery = "$query company contact email"
@@ -129,9 +137,12 @@ class WebScraperService {
                 }
             }
         } catch (e: Exception) {
+            logger?.logError("SCRAPER", "DuckDuckGo Arama", e.message ?: "Bilinmeyen hata", e)
             e.printStackTrace()
         }
 
+        val duration = System.currentTimeMillis() - startTime
+        logger?.logSearch(query, "DuckDuckGo", results.size)
         results.take(limit)
     }
 
@@ -139,6 +150,7 @@ class WebScraperService {
      * Scrape company website for contact information
      */
     suspend fun scrapeCompanyWebsite(url: String): CompanySearchResult = withContext(Dispatchers.IO) {
+        logger?.d("SCRAPER", "Web sitesi taranıyor: $url")
         val defaultResult = CompanySearchResult(
             name = extractDomain(url),
             domain = extractDomain(url),

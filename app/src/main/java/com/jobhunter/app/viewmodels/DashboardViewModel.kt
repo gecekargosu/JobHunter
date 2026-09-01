@@ -5,14 +5,20 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jobhunter.app.data.JobHunterDatabase
 import com.jobhunter.app.models.Company
+import com.jobhunter.app.utils.AppLogger
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val logger = AppLogger.getInstance(application)
     private val database = JobHunterDatabase.getDatabase(application)
     private val companyDao = database.companyDao()
     private val emailDao = database.emailDao()
+    
+    init {
+        logger.logScreenOpen("Dashboard")
+    }
 
     // Stats
     val companyCount: StateFlow<Int> = companyDao.getCompanyCount()
