@@ -7,9 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.jobhunter.app.data.dao.CompanyDao
 import com.jobhunter.app.data.dao.EmailDao
+import com.jobhunter.app.data.dao.JobApplicationDao
 import com.jobhunter.app.data.dao.UserProfileDao
 import com.jobhunter.app.models.Company
 import com.jobhunter.app.models.EmailTemplate
+import com.jobhunter.app.models.JobApplication
 import com.jobhunter.app.models.SentEmail
 import com.jobhunter.app.models.UserProfile
 
@@ -18,7 +20,8 @@ import com.jobhunter.app.models.UserProfile
         Company::class,
         EmailTemplate::class,
         SentEmail::class,
-        UserProfile::class
+        UserProfile::class,
+        JobApplication::class
     ],
     version = 1,
     exportSchema = false
@@ -29,6 +32,7 @@ abstract class JobHunterDatabase : RoomDatabase() {
     abstract fun companyDao(): CompanyDao
     abstract fun emailDao(): EmailDao
     abstract fun userProfileDao(): UserProfileDao
+    abstract fun jobApplicationDao(): JobApplicationDao
 
     companion object {
         @Volatile

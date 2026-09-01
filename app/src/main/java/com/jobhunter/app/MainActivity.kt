@@ -132,6 +132,11 @@ fun JobHunterApp() {
                 ProfileScreen(viewModel = profileViewModel)
             }
 
+            composable(Screen.ApplicationTracking.route) {
+                val applicationTrackingViewModel: ApplicationTrackingViewModel = viewModel()
+                ApplicationTrackingScreen(viewModel = applicationTrackingViewModel)
+            }
+
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     gmailService = gmailService,
