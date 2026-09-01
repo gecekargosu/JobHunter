@@ -148,14 +148,34 @@ class GmailService(private val context: Context) {
      * Send email using device's email app (fallback)
      */
     fun sendEmailViaDevice(to: String, subject: String, body: String) {
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("mailto:")
-            putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, body)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try {
+            val intent = Intent(Intent.ACTION_SENDTO).apply {
+                data = Uri.parse("mailto:")
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, body)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            
+            // Check if there's an email app available
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(Intent.createChooser(intent, "E-posta gönder"))
+            } else {
+                // No email app, try with ACTION_SEND
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "message/rfc822"
+                    putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+                    putExtra(Intent.EXTRA_SUBJECT, subject)
+                    putExtra(Intent.EXTRA_TEXT, body)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(Intent.createChooser(sendIntent, "E-posta gönder"))
+            }
+        } catch (e: Exception) {
+            // No email app available at all
+            android.util.Log.e("GmailService", "E-posta uygulaması bulunamadı", e)
+            throw Exception("E-posta göndermek için bir e-posta uygulaması gerekli. Lütfen Gmail veya başka bir e-posta uygulaması kurun.")
         }
-        context.startActivity(Intent.createChooser(intent, "E-posta gönder"))
     }
 
     /**

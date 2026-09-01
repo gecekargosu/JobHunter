@@ -121,9 +121,10 @@ class BulkEmailWorker(
                     )
                     gmailService.sendEmail(draft)
                 } else {
-                    // For non-connected Gmail, we just log it
-                    // In production, you'd use SMTP or another method
-                    true
+                    // Gmail not connected, cannot send automatically
+                    // Log the attempt but mark as failed
+                    android.util.Log.w("BulkEmailWorker", "Gmail bağlı değil, otomatik gönderim yapılamıyor: ${company.name}")
+                    false
                 }
 
                 // Save sent email

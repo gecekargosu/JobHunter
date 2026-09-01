@@ -2,6 +2,8 @@ package com.jobhunter.app.services
 
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.jobhunter.app.models.Company
 import com.jobhunter.app.models.UserProfile
 import kotlinx.coroutines.Dispatchers
@@ -149,44 +151,60 @@ Bu şirket hakkında kısa bir özet oluştur (2-3 cümle). Türkçe yaz.
     }
 
     /**
-     * Call AI API based on provider
+     * Call AI API based on provider - FIXED: proper JSON construction
      */
     private suspend fun callAiApi(prompt: String): String = withContext(Dispatchers.IO) {
         val apiKey = getApiKey()
         val provider = getProvider()
 
+        // Use JsonObject for proper JSON construction (prevents injection)
         val requestBody = when (provider) {
             "openai" -> {
-                """
-                {
-                    "model": "gpt-3.5-turbo",
-                    "messages": [
-                        {"role": "system", "content": "Sen profesyonel bir iş başvurusu asistanısın. Türkçe yazıyorsun."},
-                        {"role": "user", "content": ${gson.toJson(prompt)}}
-                    ],
-                    "max_tokens": 1000,
-                    "temperature": 0.7
+                val json = JsonObject().apply {
+                    addProperty("model", "gpt-3.5-turbo")
+                    addProperty("max_tokens", 1000)
+                    addProperty("temperature", 0.7)
+                    val messages = com.google.gson.JsonArray().apply {
+                        add(JsonObject().apply {
+                            addProperty("role", "system")
+                            addProperty("content", "Sen profesyonel bir iş başvurusu asistanısın. Türkçe yazıyorsun.")
+                        })
+                        add(JsonObject().apply {
+                            addProperty("role", "user")
+                            addProperty("content", prompt)
+                        })
+                    }
+                    add("messages", messages)
                 }
-                """.trimIndent()
+                gson.toJson(json)
             }
             "anthropic" -> {
-                """
-                {
-                    "model": "claude-3-haiku-20240307",
-                    "max_tokens": 1000,
-                    "messages": [
-                        {"role": "user", "content": ${gson.toJson(prompt)}}
-                    ]
+                val json = JsonObject().apply {
+                    addProperty("model", "claude-3-haiku-20240307")
+                    addProperty("max_tokens", 1000)
+                    val messages = com.google.gson.JsonArray().apply {
+                        add(JsonObject().apply {
+                            addProperty("role", "user")
+                            addProperty("content", prompt)
+                        })
+                    }
+                    add("messages", messages)
                 }
-                """.trimIndent()
+                gson.toJson(json)
             }
             else -> {
-                """
-                {
-                    "prompt": ${gson.toJson(prompt)},
-                    "max_tokens": 1000
+                val json = JsonObject().apply {
+                    addProperty("model", "gpt-3.5-turbo")
+                    addProperty("max_tokens", 1000)
+                    val messages = com.google.gson.JsonArray().apply {
+                        add(JsonObject().apply {
+                            addProperty("role", "user")
+                            addProperty("content", prompt)
+                        })
+                    }
+                    add("messages", messages)
                 }
-                """.trimIndent()
+                gson.toJson(json)
             }
         }
 
@@ -209,32 +227,35 @@ Bu şirket hakkında kısa bir özet oluştur (2-3 cümle). Türkçe yaz.
             .url(url)
             .addHeader(headerKey, headerValue)
             .addHeader("Content-Type", "application/json")
+            .addHeader("anthropic-version", "2023-06-01")
             .post(requestBody.toRequestBody("application/json".toMediaType()))
             .build()
 
         val response = client.newCall(request).execute()
         val responseBody = response.body?.string() ?: ""
 
-        if (!response.isSuccessful) {
-            throw Exception("API error: ${response.code} - $responseBody")
-        }
+        try {
+            if (!response.isSuccessful) {
+                throw Exception("API hatası: ${response.code} - $responseBody")
+            }
 
-        // Parse response based on provider
-        when (provider) {
-            "openai" -> {
-                val json = gson.fromJson(responseBody, Map::class.java)
-                val choices = json["choices"] as? List<*>
-                val message = choices?.firstOrNull() as? Map<*, *>
-                val content = message?.get("message") as? Map<*, *>
-                content?.get("content") as? String ?: ""
+            // Parse response based on provider
+            when (provider) {
+                "openai" -> {
+                    val json = JsonParser.parseString(responseBody).asJsonObject
+                    val choices = json.getAsJsonArray("choices")
+                    val message = choices?.get(0)?.asJsonObject?.getAsJsonObject("message")
+                    message?.get("content")?.asString ?: ""
+                }
+                "anthropic" -> {
+                    val json = JsonParser.parseString(responseBody).asJsonObject
+                    val content = json.getAsJsonArray("content")
+                    content?.get(0)?.asJsonObject?.get("text")?.asString ?: ""
+                }
+                else -> ""
             }
-            "anthropic" -> {
-                val json = gson.fromJson(responseBody, Map::class.java)
-                val content = json["content"] as? List<*>
-                val textBlock = content?.firstOrNull() as? Map<*, *>
-                textBlock?.get("text") as? String ?: ""
-            }
-            else -> ""
+        } finally {
+            response.close() // Important: close response body to prevent memory leak
         }
     }
 

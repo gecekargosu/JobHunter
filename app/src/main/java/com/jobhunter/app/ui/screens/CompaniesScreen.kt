@@ -109,7 +109,16 @@ fun CompaniesScreen(
                     ) {
                         Button(
                             onClick = {
-                                emailViewModel.bulkSendEmails(selectedCompanies.toList())
+                                // Filter companies that have emails
+                                val companiesWithEmails = companies
+                                    .filter { selectedCompanies.contains(it.id) && it.email.isNotEmpty() }
+                                    .map { it.id }
+                                
+                                if (companiesWithEmails.isEmpty()) {
+                                    emailViewModel.clearResult()
+                                } else {
+                                    emailViewModel.bulkSendEmails(companiesWithEmails)
+                                }
                                 selectedCompanies = emptySet()
                                 showBulkActions = false
                             },

@@ -346,10 +346,9 @@ class PdfService(private val context: Context) {
 
         // Save to file
         val fileName = "CV_${profile.firstName}_${profile.lastName}.pdf".replace(" ", "_")
-        val file = File(
-            context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
-            fileName
-        )
+        val documentsDir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+            ?: context.filesDir // Fallback to internal files dir
+        val file = File(documentsDir, fileName)
 
         FileOutputStream(file).use { outputStream ->
             document.writeTo(outputStream)

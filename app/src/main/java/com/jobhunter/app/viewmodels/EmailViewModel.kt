@@ -68,6 +68,64 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
     fun updateBody(body: String) { _body.value = body }
 
     /**
+     * Generate email with AI using email field to find company
+     */
+    fun generateEmailWithAiFromEmail(purpose: String = "iş başvurusu") {
+        val email = _toEmail.value.trim()
+        if (email.isEmpty()) {
+            _sendResult.value = "Önce alıcı e-posta adresini girin"
+            return
+        }
+
+        viewModelScope.launch {
+            _isGenerating.value = true
+            try {
+                val profile = profileDao.getProfileSync()
+                if (profile == null) {
+                    _sendResult.value = "Profil bulunamadı. Önce Profilim ekranından bilgilerinizi girin."
+                    return@launch
+                }
+
+                // Try to find company by email
+                val companies = companyDao.getAllCompaniesSync()
+                val company = companies.find { it.email == email }
+
+                val generatedSubject: String
+                val generatedBody: String
+
+                if (company != null) {
+                    // Found company, generate personalized email
+                    generatedBody = aiService.generateOutreachEmail(company, profile, purpose)
+                    generatedSubject = if (purpose == "iş başvurusu") {
+                        "${profile.firstName} ${profile.lastName} - İş Başvurusu - ${company.name}"
+                    } else {
+                        "${company.name} Hakkında"
+                    }
+                } else {
+                    // No company found, generate generic email
+                    generatedBody = aiService.generateOutreachEmail(
+                        Company(name = "", domain = "", industry = "", location = "", description = ""),
+                        profile,
+                        purpose
+                    )
+                    generatedSubject = if (purpose == "iş başvurusu") {
+                        "${profile.firstName} ${profile.lastName} - İş Başvurusu"
+                    } else {
+                        "İş Başvurusu"
+                    }
+                }
+
+                _subject.value = generatedSubject
+                _body.value = generatedBody
+            } catch (e: Exception) {
+                _sendResult.value = "AI oluşturma hatası: ${e.message}"
+            } finally {
+                _isGenerating.value = false
+            }
+        }
+    }
+
+    /**
      * Generate email with AI
      */
     fun generateEmailWithAi(companyId: Long, purpose: String = "iş başvurusu") {
@@ -221,10 +279,7 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
 
                 _sendResult.value = if (success) "E-posta gönderildi!" else "Gönderme başarısız"
 
-                // Clear form
-                _toEmail.value = ""
-                _subject.value = ""
-                _body.value = ""
+                // Don't clear form - let user decide if they want to send again
             } catch (e: Exception) {
                 _sendResult.value = "Hata: ${e.message}"
             } finally {

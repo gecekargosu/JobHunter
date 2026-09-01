@@ -99,6 +99,7 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
      */
     fun scrapeCompanyDetails(result: CompanySearchResult) {
         viewModelScope.launch {
+            _isSearching.value = true
             try {
                 val detailedResult = scraperService.scrapeCompanyWebsite(result.website)
 
@@ -113,17 +114,27 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
                     } else it
                 }
                 _searchResults.value = updatedResults
+                _searchError.value = if (detailedResult.emails.isEmpty()) "E-posta adresi bulunamadı" else null
             } catch (e: Exception) {
-                // Silently fail
+                _searchError.value = "Web sitesi taranırken hata: ${e.message}"
+            } finally {
+                _isSearching.value = false
             }
         }
     }
 
     /**
-     * Save company to database
+     * Save company to database (with duplicate check)
      */
     fun saveCompany(result: CompanySearchResult) {
         viewModelScope.launch {
+            // Check if company already exists by domain
+            val existing = companyDao.getCompanyByDomain(result.domain)
+            if (existing != null) {
+                _searchError.value = "Bu şirket zaten kayıtlı: ${existing.name}"
+                return@launch
+            }
+
             val company = Company(
                 name = result.name,
                 domain = result.domain,
@@ -136,6 +147,7 @@ class CompanySearchViewModel(application: Application) : AndroidViewModel(applic
                 linkedinUrl = result.linkedinUrl
             )
             companyDao.insertCompany(company)
+            _searchError.value = null // Clear any previous error
         }
     }
 

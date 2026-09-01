@@ -112,7 +112,7 @@ fun EmailScreen(
                 onSubjectChange = viewModel::updateSubject,
                 onBodyChange = viewModel::updateBody,
                 onSend = viewModel::sendEmail,
-                onGenerateAi = { viewModel.generateEmailWithAi(1) },
+                onGenerateAi = { viewModel.generateEmailWithAiFromEmail() },
                 onSaveTemplate = { showTemplates = true },
                 onClearResult = viewModel::clearResult
             )

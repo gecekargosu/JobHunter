@@ -10,6 +10,9 @@ interface CompanyDao {
     @Query("SELECT * FROM companies ORDER BY createdAt DESC")
     fun getAllCompanies(): Flow<List<Company>>
 
+    @Query("SELECT * FROM companies ORDER BY createdAt DESC")
+    suspend fun getAllCompaniesSync(): List<Company>
+
     @Query("SELECT * FROM companies WHERE name LIKE '%' || :query || '%' OR industry LIKE '%' || :query || '%' OR location LIKE '%' || :query || '%'")
     fun searchCompanies(query: String): Flow<List<Company>>
 
