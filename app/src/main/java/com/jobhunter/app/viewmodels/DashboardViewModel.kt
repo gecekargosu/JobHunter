@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jobhunter.app.data.JobHunterDatabase
 import com.jobhunter.app.models.Company
-import com.jobhunter.app.models.SentEmail
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

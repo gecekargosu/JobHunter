@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("org.jetbrains.kapt")
 }
 
 android {
@@ -46,6 +47,7 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/DEPENDENCIES"
         }
     }
 }
@@ -76,11 +78,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    // Room Database
+    // Room Database (with kapt)
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
 
     // DataStore (SharedPreferences replacement - modern)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
@@ -97,8 +98,8 @@ dependencies {
 
     // ===== YENİ EKLENEN KÜTÜPHANELER =====
 
-    // iText PDF - CV/Özgeçmiş PDF oluşturma (Açık kaynak AGPL)
-    implementation("com.itextpdf:itext7-core:7.2.5")
+    // PDF Creation - Android PdfDocument (built-in, no external lib needed)
+    // iText removed due to licensing and compatibility issues
 
     // Coil - Resim yükleme (Glide alternatifi, Compose uyumlu)
     implementation("io.coil-kt:coil-compose:2.5.0")
@@ -109,10 +110,16 @@ dependencies {
     // Splash Screen - Açılış ekranı
     implementation("androidx.core:core-splashscreen:1.0.1")
 
-    // Dependency Injection - Hilt (basitleştirilmiş)
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+    // JavaMail for Gmail API (javax.mail)
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
 
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+
+// kapt configuration for Room
+kapt {
+    correctErrorTypes = true
 }

@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Main App Theme -->
     <style name="Theme.JobHunter" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">@color/primary</item>
         <item name="android:navigationBarColor">@color/primary</item>
+        <item name="android:windowBackground">@color/background_light</item>
+    </style>
+
+    <!-- Splash Screen Theme -->
+    <style name="Theme.JobHunter.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <item name="postSplashScreenTheme">@style/Theme.JobHunter</item>
     </style>
 </resources>

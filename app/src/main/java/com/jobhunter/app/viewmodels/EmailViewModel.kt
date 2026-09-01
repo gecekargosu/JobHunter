@@ -344,7 +344,3 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
         _sendResult.value = null
     }
 }
-
-// File extension for File class
-private val File.absolutePath: String
-    get() = this.absolutePath

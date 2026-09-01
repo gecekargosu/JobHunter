@@ -13,10 +13,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.util.Base64
-import java.util.Properties
-import javax.mail.*
-import javax.mail.internet.InternetAddress
-import javax.mail.internet.MimeMessage
 
 class GmailService(private val context: Context) {
 
@@ -113,31 +109,17 @@ class GmailService(private val context: Context) {
     }
 
     /**
-     * Create RFC 2822 email message
+     * Create RFC 2822 email message (simple version without javax.mail)
      */
     private fun createEmailMessage(from: String, to: String, subject: String, body: String): String {
-        val properties = Properties().apply {
-            put("mail.smtp.host", "smtp.gmail.com")
-            put("mail.smtp.port", "587")
-            put("mail.smtp.auth", "true")
-        }
-
-        val session = Session.getInstance(properties, object : Authenticator() {
-            override fun getPasswordAuthentication(): PasswordAuthentication {
-                return PasswordAuthentication(from, "")
-            }
-        })
-
-        val message = MimeMessage(session).apply {
-            setFrom(InternetAddress(from))
-            setRecipients(Message.RecipientType.TO, InternetAddress.parse(to))
-            this.subject = subject
-            setText(body)
-        }
-
-        val outputStream = java.io.ByteArrayOutputStream()
-        message.writeTo(outputStream)
-        return outputStream.toString()
+        val sb = StringBuilder()
+        sb.append("From: $from\r\n")
+        sb.append("To: $to\r\n")
+        sb.append("Subject: $subject\r\n")
+        sb.append("Content-Type: text/plain; charset=UTF-8\r\n")
+        sb.append("\r\n")
+        sb.append(body)
+        return sb.toString()
     }
 
     /**

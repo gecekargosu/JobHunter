@@ -36,7 +36,7 @@ fun EmailScreen(
     val sentEmails by viewModel.sentEmails.collectAsState()
     val isGmailConnected by viewModel.isGmailConnected.collectAsState()
 
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by remember { mutableStateOf(0) }
     var showTemplates by remember { mutableStateOf(false) }
     var templateName by remember { mutableStateOf("") }
 
