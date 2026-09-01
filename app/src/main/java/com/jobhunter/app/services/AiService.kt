@@ -53,9 +53,21 @@ class AiService(private val context: Context) {
         }
 
         val prompt = buildString {
-            appendLine("Aşağıdaki bilgilere göre profesyonel bir ön yazı oluştur:")
+            // AIHawk'tan ilham alınan gelişmiş prompt yapısı
+            appendLine("Compose a brief and impactful cover letter based on the provided job description and resume.")
+            appendLine("The letter should be no longer than three paragraphs and should be written in a professional, yet conversational tone.")
+            appendLine("Avoid using any placeholders, and ensure that the letter flows naturally and is tailored to the job.")
             appendLine()
-            appendLine("=== ADAY BİLGİLERİ ===")
+            appendLine("Analyze the job description to identify key qualifications and requirements.")
+            appendLine("Introduce the candidate succinctly, aligning their career objectives with the role.")
+            appendLine("Highlight relevant skills and experiences from the resume that directly match the job's demands,")
+            appendLine("using specific examples to illustrate these qualifications.")
+            appendLine("Reference notable aspects of the company, such as its mission or values, that resonate with the candidate's professional goals.")
+            appendLine("Conclude with a strong statement of why the candidate is a good fit for the position, expressing a desire to discuss further.")
+            appendLine()
+            appendLine("Lütfen ön yazıyı Türkçe yazın.")
+            appendLine()
+            appendLine("=== ADAY BİLGİLERİ (RESUME) ===")
             appendLine("Ad: ${profile.firstName} ${profile.lastName}")
             appendLine("E-posta: ${profile.email}")
             appendLine("Özet: ${profile.summary}")
@@ -72,19 +84,20 @@ class AiService(private val context: Context) {
                 appendLine("- ${edu.degree} - ${edu.department} @ ${edu.school}")
             }
             appendLine()
-            appendLine("=== ŞİRKET BİLGİLERİ ===")
+            appendLine("=== ŞİRKET BİLGİLERİ (JOB DESCRIPTION) ===")
             appendLine("Şirket: ${company.name}")
             appendLine("Sektör: ${company.industry}")
             appendLine("Açıklama: ${company.description}")
             appendLine("Konum: ${company.location}")
             appendLine()
             appendLine("=== TALİMATLAR ===")
-            appendLine("Ton: $tone")
-            appendLine("Dil: Türkçe")
-            appendLine("Ön yazı 3-4 paragraf olmalı")
-            appendLine("Şirketin sektörüne ve değerlerine uygun olmalı")
-            appendLine("Adayın deneyimlerini ve yeteneklerini vurgulamalı")
-            appendLine("Sonuç paragrafında görüşme talep edilmeli")
+            appendLine("- Profesyonel ama samimi bir ton kullan")
+            appendLine("- 3 paragrafı geçme")
+            appendLine("- Şirketin değerlerine ve sektörüne uygun ol")
+            appendLine("- Adayın deneyimlerini ve yeteneklerini vurgula")
+            appendLine("- Somut örnekler kullan")
+            appendLine("- Son paragrafta görüşme talep et")
+            appendLine("- Greeting veya signature ekleme")
         }
 
         try {
@@ -107,15 +120,31 @@ class AiService(private val context: Context) {
             return@withContext generateFallbackOutreachEmail(company, profile, purpose)
         }
 
-        val prompt = """
-Şirket: ${company.name}
-Aday: ${profile.firstName} ${profile.lastName}
-Yetenekler: ${profile.skills.joinToString(", ")}
-Amaç: $purpose
-
-Kısa, profesyonel ve etkileyici bir e-posta oluştur. 
-1 paragraf olsun. Türkçe yaz.
-        """.trimIndent()
+        val prompt = buildString {
+            // AIHawk'tan ilham alınan outreach email promptu
+            appendLine("Compose a brief and impactful outreach email for a job application.")
+            appendLine("The email should be no longer than one paragraph and should be written in a professional, yet conversational tone.")
+            appendLine("Avoid using any placeholders, and ensure that the email flows naturally.")
+            appendLine()
+            appendLine("Highlight the candidate's most relevant skills and experiences that match the company's needs.")
+            appendLine("Reference the company's mission or values that resonate with the candidate's professional goals.")
+            appendLine("Conclude with a clear call to action.")
+            appendLine()
+            appendLine("Lütfen e-postayı Türkçe yazın.")
+            appendLine()
+            appendLine("=== ŞİRKET BİLGİLERİ ===")
+            appendLine("Şirket: ${company.name}")
+            appendLine("Sektör: ${company.industry}")
+            appendLine("Açıklama: ${company.description}")
+            appendLine()
+            appendLine("=== ADAY BİLGİLERİ ===")
+            appendLine("Ad: ${profile.firstName} ${profile.lastName}")
+            appendLine("Yetenekler: ${profile.skills.joinToString(", ")}")
+            appendLine("Özet: ${profile.summary}")
+            appendLine()
+            appendLine("=== AMAÇ ===")
+            appendLine(purpose)
+        }.toString()
 
         try {
             val response = callAiApi(prompt)
