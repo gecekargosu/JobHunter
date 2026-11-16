@@ -2,6 +2,21 @@
 
 Android için geliştirilmiş, yapay zeka destekli iş arama ve otomatik başvuru uygulaması.
 
+## 📱 Ekran Görüntüleri
+
+| Ana ekran | İş arama | Başvurular |
+|---|---|---|
+| ![Ana ekran](docs/screenshots/01-ana-ekran.png) | ![İş arama](docs/screenshots/02-is-arama.png) | ![Başvurular](docs/screenshots/03-basvurular.png) |
+
+| E-posta | Profilim |
+|---|---|
+| ![E-posta](docs/screenshots/04-eposta.png) | ![Profilim](docs/screenshots/05-profilim.png) |
+
+## 📥 APK
+
+[JobHunter-v2.0.0-debug.apk](JobHunter-v2.0.0-debug.apk) — depodan doğrudan indirilebilir.
+Kurulum için telefonda bilinmeyen kaynaklara izin vermen gerekiyor.
+
 ## 🎯 Özellikler
 
 ### ✅ Faz 1 (Mevcut)
