@@ -32,7 +32,12 @@ fun DashboardScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToCompanies: () -> Unit,
     onNavigateToEmail: () -> Unit,
-    onNavigateToApplications: () -> Unit
+    onNavigateToApplications: () -> Unit,
+    onNavigateToWebView: (String) -> Unit = {},
+    onNavigateToAiAssistant: () -> Unit = {},
+    onNavigateToSettings: () -> Unit = {},
+    onNavigateToCvImport: () -> Unit = {},
+    onNavigateToCompanyResearch: () -> Unit = {}
 ) {
     val companyCount by viewModel.companyCount.collectAsState()
     val contactableCount by viewModel.contactableCount.collectAsState()
@@ -56,13 +61,13 @@ fun DashboardScreen(
                     .padding(vertical = 8.dp)
             ) {
                 Text(
-                    text = "🔍 JobHunter",
+                    text = "\uD83D\uDD0D JobHunter",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "İş Arama Asistanın",
+                    text = "\u0130\u015f Arama Asistan\u0131n v7.0",
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -82,7 +87,7 @@ fun DashboardScreen(
                     modifier = Modifier.padding(16.dp)
                 ) {
                     Text(
-                        text = "⚡ Hızlı Arama",
+                        text = "\u26A1 H\u0131zl\u0131 Arama",
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
@@ -91,7 +96,7 @@ fun DashboardScreen(
                         value = searchQuery,
                         onValueChange = { viewModel.updateSearchQuery(it) },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Şirket, sektör veya anahtar kelime...") },
+                        placeholder = { Text("\u015Eirket, sekt\u00F6r veya anahtar kelime...") },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                         trailingIcon = {
                             IconButton(onClick = {
@@ -119,14 +124,14 @@ fun DashboardScreen(
             ) {
                 StatCard(
                     modifier = Modifier.weight(1f),
-                    title = "Şirket",
+                    title = "\u015Eirket",
                     value = "$companyCount",
                     icon = Icons.Default.Business,
                     color = MaterialTheme.colorScheme.primary
                 )
                 StatCard(
                     modifier = Modifier.weight(1f),
-                    title = "E-postalı",
+                    title = "E-postal\u0131",
                     value = "$contactableCount",
                     icon = Icons.Default.Email,
                     color = MaterialTheme.colorScheme.secondary
@@ -141,14 +146,14 @@ fun DashboardScreen(
             ) {
                 StatCard(
                     modifier = Modifier.weight(1f),
-                    title = "Gönderilen",
+                    title = "G\u00F6nderilen",
                     value = "$sentEmailCount",
                     icon = Icons.Default.Send,
                     color = MaterialTheme.colorScheme.tertiary
                 )
                 StatCard(
                     modifier = Modifier.weight(1f),
-                    title = "Başarılı",
+                    title = "Ba\u015Far\u0131l\u0131",
                     value = "$successfulEmailCount",
                     icon = Icons.Default.CheckCircle,
                     color = Color(0xFF4CAF50)
@@ -156,10 +161,134 @@ fun DashboardScreen(
             }
         }
 
+        // Gercek Platformlarda Ara
+        item {
+            Text(
+                text = "\uD83C\uDF10 Ger\u00E7ek Platformlarda Ara",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+            Text(
+                text = "Do\u011Frudan ger\u00E7ek i\u015F platformlar\u0131n\u0131 uygulama i\u00E7inde a\u00E7\u0131n",
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToWebView("kariyer") },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF1976D2).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83C\uDFAF", fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Kariyer.net", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                }
+                
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToWebView("linkedin") },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF0077B5).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83D\uDCBC", fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("LinkedIn", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                }
+                
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToWebView("indeed") },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF2164F3).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83D\uDD0D", fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Indeed", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+
+        // Yeni Platformlar
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToWebView("eleman") },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFF6B00).copy(alpha = 0.1f))
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("\uD83C\uDFF3", fontSize = 20.sp)
+                        Text("Eleman.net", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToWebView("yenibiris") },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF00BCD4).copy(alpha = 0.1f))
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("\uD83D\uDCDD", fontSize = 20.sp)
+                        Text("Yenibiris", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToWebView("isbul") },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF795548).copy(alpha = 0.1f))
+                ) {
+                    Column(modifier = Modifier.padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("\uD83D\uDD0D", fontSize = 20.sp)
+                        Text("Isbul.net", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                    }
+                }
+            }
+        }
+
         // Quick Actions
         item {
             Text(
-                text = "🚀 Hızlı İşlemler",
+                text = "\uD83D\uDE80 H\u0131zl\u0131 \u0130\u015Flemler",
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 modifier = Modifier.padding(vertical = 8.dp)
@@ -173,13 +302,13 @@ fun DashboardScreen(
             ) {
                 QuickActionCard(
                     modifier = Modifier.weight(1f),
-                    title = "Şirket Ara",
+                    title = "\u015Eirket Ara",
                     icon = Icons.Default.Search,
                     onClick = onNavigateToSearch
                 )
                 QuickActionCard(
                     modifier = Modifier.weight(1f),
-                    title = "Şirketlerim",
+                    title = "\u015Eirketlerim",
                     icon = Icons.Default.Business,
                     onClick = onNavigateToCompanies
                 )
@@ -193,16 +322,104 @@ fun DashboardScreen(
             ) {
                 QuickActionCard(
                     modifier = Modifier.weight(1f),
-                    title = "E-posta Gönder",
+                    title = "E-posta G\u00F6nder",
                     icon = Icons.Default.Email,
                     onClick = onNavigateToEmail
                 )
                 QuickActionCard(
                     modifier = Modifier.weight(1f),
-                    title = "Başvurular",
+                    title = "Ba\u015Fvurular",
                     icon = Icons.Default.Assignment,
                     onClick = onNavigateToApplications
                 )
+            }
+        }
+
+        // CV Yukle + Sirket Arastirma
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToCvImport() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFFFAA00).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83D\uDCC4", fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("CV Yukle", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Text("Analiz Et", fontSize = 10.sp, color = Color(0xFFFFAA00))
+                    }
+                }
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onNavigateToCompanyResearch() },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFBB86FC).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("\uD83C\uDFE2", fontSize = 24.sp)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Sirket", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Text("Arastirma", fontSize = 10.sp, color = Color(0xFFBB86FC))
+                    }
+                }
+            }
+        }
+
+        // AI Assistant Button
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToAiAssistant() },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF00D4FF).copy(alpha = 0.1f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("\uD83E\uDD16", fontSize = 32.sp)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "AI Asistan",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            color = Color(0xFF00D4FF)
+                        )
+                        Text(
+                            "\u00D6n yaz\u0131, e\u015Fle\u015Ftirme, \u015Firket ara\u015Ft\u0131rmas\u0131, CV analiz",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Icon(
+                        Icons.Default.AutoAwesome,
+                        contentDescription = null,
+                        tint = Color(0xFF00D4FF)
+                    )
+                }
             }
         }
 
@@ -210,7 +427,7 @@ fun DashboardScreen(
         if (recentCompanies.isNotEmpty()) {
             item {
                 Text(
-                    text = "🏢 Son Eklenen Şirketler",
+                    text = "\uD83C\uDFE2 Son Eklenen \u015Eirketler",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     modifier = Modifier.padding(vertical = 8.dp)
@@ -313,7 +530,6 @@ fun CompanyQuickCard(company: Company) {
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Company icon
             Box(
                 modifier = Modifier
                     .size(48.dp)
@@ -350,7 +566,7 @@ fun CompanyQuickCard(company: Company) {
             if (company.isContacted) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "İletişime geçildi",
+                    contentDescription = "\u0130leti\u015Fime ge\u00E7ildi",
                     tint = Color(0xFF4CAF50),
                     modifier = Modifier.size(20.dp)
                 )

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - E-posta</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        .header {
+            padding: 20px 16px 8px;
+        }
+        .header h1 { font-size: 24px; color: #6C63FF; }
+        .gmail-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #9E9E9E;
+            margin-top: 4px;
+        }
+        .gmail-status.connected { color: #4CAF50; }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #3D3D54;
+            margin-top: 12px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: #9E9E9E;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active { color: #6C63FF; border-bottom-color: #6C63FF; }
+        
+        .compose-section {
+            padding: 16px;
+        }
+        .form-group { margin-bottom: 12px; }
+        .form-label { font-size: 14px; margin-bottom: 4px; display: block; }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #3D3D54;
+            border-radius: 12px;
+            background: #1E1E2E;
+            color: #fff;
+            font-size: 14px;
+        }
+        .form-textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        .btn-ai {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: #6C63FF;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        .btn-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-outline {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #6C63FF;
+            border-radius: 12px;
+            background: transparent;
+            color: #6C63FF;
+            cursor: pointer;
+        }
+        .btn-primary {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: #6C63FF;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .templates-list {
+            padding: 16px;
+        }
+        .template-card {
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .template-name { font-weight: bold; }
+        .template-badge {
+            padding: 2px 6px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 4px;
+            font-size: 10px;
+            color: #6C63FF;
+        }
+        .template-subject { font-size: 14px; color: #9E9E9E; }
+        .template-body { font-size: 12px; color: #9E9E9E; margin-top: 4px; }
+        .template-actions { margin-top: 8px; text-align: right; }
+        .template-actions button {
+            background: none;
+            border: none;
+            color: #6C63FF;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        .template-actions .delete { color: #f44336; }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1E1E2E;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid #3D3D54;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #9E9E9E;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        .nav-item.active { color: #6C63FF; }
+        .nav-icon { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📧 E-posta Gönder</h1>
+        <div class="gmail-status">
+            <span>⚠️</span>
+            <span>Gmail bağlı değil — cihaz uygulaması kullanılacak</span>
+        </div>
+    </div>
+    
+    <div class="tabs">
+        <button class="tab active">Yeni E-posta</button>
+        <button class="tab">Şablonlar</button>
+        <button class="tab">Gönderilenler</button>
+    </div>
+    
+    <div class="compose-section">
+        <div class="form-group">
+            <label class="form-label">Alıcı E-posta</label>
+            <input type="email" class="form-input" placeholder="ornek@techcorp.com" value="info@techcorp.com">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Konu</label>
+            <input type="text" class="form-input" placeholder="E-posta konusu" value="Ahmet Yılmaz - İş Başvurusu - TechCorp">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">E-posta İçeriği</label>
+            <textarea class="form-input form-textarea" placeholder="E-posta içeriği...">Sayın TechCorp İnsan Kaynakları,
+
+TechCorp bünyesinde görev almak istediğimi belirtmek isterim.
+
+5 yıl yazılım geliştirme deneyimim bulunmaktadır. Kotlin, Java ve Python üzerine uzmanlaşmış olup, mobil uygulama geliştirme konusunda güçlü bir geçmişe sahibim.
+
+Bu fırsatı değerlendirmenizi saygıyla rica ederim.
+
+Saygılarımla,
+Ahmet Yılmaz</textarea>
+        </div>
+        
+        <button class="btn-ai">✨ AI ile Oluştur</button>
+        
+        <div class="btn-actions">
+            <button class="btn-outline">💾 Şablon Kaydet</button>
+            <button class="btn-primary">📤 Gönder</button>
+        </div>
+    </div>
+    
+    <div style="height: 80px;"></div>
+    
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Ana Ekran</span>
+        </a>
+        <a href="company_search.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span>Şirket Ara</span>
+        </a>
+        <a href="companies.html" class="nav-item">
+            <span class="nav-icon">🏢</span>
+            <span>Şirketler</span>
+        </a>
+        <a href="email.html" class="nav-item active">
+            <span class="nav-icon">📧</span>
+            <span>E-posta</span>
+        </a>
+        <a href="applications.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Başvurular</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Profilim</span>
+        </a>
+    </nav>
+</body>
+</html>

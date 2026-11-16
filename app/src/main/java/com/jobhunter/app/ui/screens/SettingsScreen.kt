@@ -1,7 +1,7 @@
 package com.jobhunter.app.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,30 +15,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jobhunter.app.services.AiService
 import com.jobhunter.app.services.GmailService
-import com.jobhunter.app.services.LinkedInService
+import com.jobhunter.app.services.GoogleGeminiService
+import com.jobhunter.app.services.SmtpEmailService
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     gmailService: GmailService,
-    aiService: AiService
+    aiService: AiService,
+    smtpService: SmtpEmailService? = null,
+    onNavigateToSmtpSettings: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val linkedInService = remember { LinkedInService(context) }
-    
-    var showGmailDialog by remember { mutableStateOf(false) }
-    var showAiDialog by remember { mutableStateOf(false) }
-    var showLinkedInDialog by remember { mutableStateOf(false) }
-    var showGmailHelp by remember { mutableStateOf(false) }
-    var showAiHelp by remember { mutableStateOf(false) }
-    var gmailAddress by remember { mutableStateOf(gmailService.getConfig().gmailAddress) }
-    var apiKey by remember { mutableStateOf(aiService.getApiKey()) }
-    var apiProvider by remember { mutableStateOf(aiService.getProvider()) }
-    var linkedInUrl by remember { mutableStateOf(linkedInService.getLinkedInUrl()) }
+    val geminiService = remember { GoogleGeminiService(context) }
+
+    var showApiDialog by remember { mutableStateOf(false) }
+    var selectedProvider by remember { mutableStateOf("gemini") }
+    var apiKeyInput by remember { mutableStateOf("") }
+    var saved by remember { mutableStateOf(false) }
 
     LazyColumn(
         modifier = Modifier
@@ -49,211 +47,60 @@ fun SettingsScreen(
     ) {
         // Header
         item {
-            Text(
-                text = "⚙️ Ayarlar",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Text("⚙️ Ayarlar", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
         }
 
-        // ===== GMAIL SECTION =====
-        item {
-            SectionHeader(title = "📧 Gmail Hesabı")
-        }
-
+        // ===== SMTP BOLUMU =====
+        item { SectionHeader("📧 E-posta Gönderimi") }
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (smtpService?.isConfigured() == true) Color(0xFF4CAF50).copy(alpha = 0.1f)
+                    else MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    // Status
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                if (gmailService.isConnected()) Icons.Default.CheckCircle else Icons.Default.Warning,
-                                contentDescription = null,
-                                tint = if (gmailService.isConnected()) Color(0xFF4CAF50) else Color(0xFFFF9800)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = if (gmailService.isConnected()) "Gmail Bağlı" else "Gmail Bağlı Değil",
-                                    fontWeight = FontWeight.Medium
-                                )
-                                if (gmailService.isConnected()) {
-                                    Text(
-                                        text = gmailService.getConfig().gmailAddress,
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-
-                        if (gmailService.isConnected()) {
-                            TextButton(
-                                onClick = { gmailService.disconnect() },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.error
-                                )
-                            ) {
-                                Text("Kes")
-                            }
-                        } else {
-                            Button(onClick = { showGmailDialog = true }) {
-                                Text("Bağla")
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Gmail Help Info Box
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                Row(
+                    modifier = Modifier.fillMaxWidth().clickable { onNavigateToSmtpSettings() }.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        if (smtpService?.isConfigured() == true) Icons.Default.CheckCircle else Icons.Default.Mail,
+                        contentDescription = null,
+                        tint = if (smtpService?.isConfigured() == true) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(if (smtpService?.isConfigured() == true) "SMTP E-posta Aktif" else "SMTP E-posta Ayarla", fontWeight = FontWeight.Medium)
+                        Text(
+                            if (smtpService?.isConfigured() == true) "E-postalar doğrudan gönderiliyor" else "Gmail uygulama şifresi ile e-posta gönder",
+                            fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Icon(
-                                    Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Gmail Hakkında",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "Gmail hesabınızı bağlayarak e-postaları doğrudan uygulamadan gönderebilirsiniz.",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "📌 Ne işe yarar?",
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = "• Bulduğunuz şirketlere otomatik e-posta gönderir\n• Ön yazı ve CV ekler\n• Gönderim geçmişini tutar",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "📌 Nasıl bağlanır?",
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = "1. Gmail adresinizi girin\n2. \"Bağla\" butonuna basın\n3. Google hesabınızla giriş yapın\n4. İzinleri onaylayın",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "⚠️ Güvenli mi?",
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 12.sp
-                            )
-                            Text(
-                                text = "Evet! Sadece e-posta gönderme izni istenir. Şifreniz saklanmaz, sadece Google tarafından verilen erişim anahtarı kullanılır.",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "💡 İpucu: Gmail bağlamadan da e-posta gönderebilirsiniz — cihazın kendi e-posta uygulaması açılır.",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.tertiary,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Alternative: Just use device email
-                    if (!gmailService.isConnected()) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)
-                            )
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.PhoneAndroid,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text(
-                                        text = "Alternatif: Cihaz E-postası",
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = 13.sp
-                                    )
-                                    Text(
-                                        text = "Gmail bağlamadan da e-posta göndermek mümkündür. Cihazınızda kurulu e-posta uygulaması (Gmail, Outlook vb.) açılacaktır.",
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    Icon(Icons.Default.ChevronRight, contentDescription = null)
                 }
             }
         }
 
-        // ===== AI SECTION =====
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            SectionHeader(title = "🤖 AI Ayarları (Yapay Zeka)")
-        }
+        // ===== AI AYARLARI =====
+        item { Spacer(modifier = Modifier.height(8.dp)); SectionHeader("🤖 AI Ayarları (Yapay Zeka)") }
 
+        // AI Durum karti
         item {
+            val geminiReady = geminiService.isConfigured()
+            val aiReady = aiService.isConfigured()
+            val anyReady = geminiReady || aiReady
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (anyReady) Color(0xFF00FF88).copy(alpha = 0.1f)
+                    else MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    // Status
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -261,24 +108,24 @@ fun SettingsScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                if (aiService.isConfigured()) Icons.Default.CheckCircle else Icons.Default.Warning,
+                                if (anyReady) Icons.Default.CheckCircle else Icons.Default.Warning,
                                 contentDescription = null,
-                                tint = if (aiService.isConfigured()) Color(0xFF4CAF50) else Color(0xFFFF9800)
+                                tint = if (anyReady) Color(0xFF4CAF50) else Color(0xFFFF9800)
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = if (aiService.isConfigured()) "AI Yapılandırıldı" else "AI Yapılandırılmadı",
+                                    when {
+                                        geminiReady && aiReady -> "Gemini + ${aiService.getProvider().uppercase()} Bagli"
+                                        geminiReady -> "Gemini API Bagli ✅"
+                                        aiReady -> "${aiService.getProvider().uppercase()} Bagli ✅"
+                                        else -> "AI Yapilandirilmadi"
+                                    },
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    text = if (aiService.isConfigured()) {
-                                        "Sağlayıcı: ${if (aiService.getProvider() == "openai") "OpenAI" else "Anthropic"}"
-                                    } else {
-                                        "AI ile otomatik e-posta oluşturmak için API anahtarı gerekli"
-                                    },
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    if (anyReady) "AI ile on yazi, eslestirme, sirket arastirmasi" else "API anahtari gerekli",
+                                    fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -287,583 +134,183 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Button(
-                        onClick = { showAiDialog = true },
+                        onClick = {
+                            selectedProvider = if (geminiReady) "gemini" else aiService.getProvider()
+                            apiKeyInput = if (geminiReady) geminiService.getApiKey() else aiService.getApiKey()
+                            showApiDialog = true
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Icon(Icons.Default.Key, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(if (aiService.isConfigured()) "API Anahtarını Güncelle" else "API Anahtarı Gir")
+                        Text(if (anyReady) "API Anahtarini Guncelle" else "API Anahtari Gir")
                     }
                 }
             }
         }
 
-        // AI Help Info Box
+        // Ucretsiz API rehberi
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f)
-                )
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "AI Nedir ve Ne İşe Yarar?",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
-                    }
-
+                    Text("🆓 Ücretsiz API Rehberi", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.tertiary)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = "📌 AI ile ne yapabilirsiniz?",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp
+                    // Google Gemini
+                    ApiProviderCard(
+                        name = "🟢 Google Gemini (ÖNERİLEN)",
+                        free = "1500 istek/gün ücretsiz",
+                        url = "aistudio.google.com/apikey",
+                        steps = "1. aistudio.google.com/apikey adresine gidin\n2. Google hesabınızla giriş yapın\n3. \"Create API Key\" butonuna basın\n4. Oluşan anahtarı kopyalayın\n5. Buraya yapıştırın",
+                        color = Color(0xFF4285F4)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "• Otomatik ön yazı oluşturur (İngilizce/Türkçe)\n• Şirkete özel e-posta yazar\n• CV'nizi analiz eder\n• Profesyonel içerik üretir",
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "📌 API Anahtarı Nedir?",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "AI servislerini kullanmak için bir \"anahtar\" gerekir. Bu anahtar, hesabınızı doğrular. Ücretsiz deneme hakları vardır.",
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // OpenAI Section
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "🟢 OpenAI (ChatGPT) ile Kullanım",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "1. https://platform.openai.com adresine gidin\n2. \"Sign Up\" ile hesap oluşturun (Google ile giriş yapabilirsiniz)\n3. Sol menüden \"API Keys\" tıklayın\n4. \"Create new secret key\" butonuna basın\n5. Bir isim verin ve \"Create\" diyin\n6. Oluşan anahtarı kopyalayın (sk-... ile başlar)\n7. Buraya yapıştırın",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "💰 Fiyat: İlk $5 ücretsiz deneme kredisi var. E-posta oluşturmak için aylık ~$0.50-1.00 yeterli.",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontWeight = FontWeight.Medium
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Text(
-                                text = "📋 Ne yazmalıyım? → \"sk-\" ile başlayan anahtarı buraya yapıştırın",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.tertiary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Anthropic Section
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "🟣 Anthropic (Claude) ile Kullanım",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "1. https://console.anthropic.com adresine gidin\n2. Hesap oluşturun veya giriş yapın\n3. Sol menüden \"API Keys\" tıklayın\n4. \"Create Key\" butonuna basın\n5. Bir isim verin ve \"Create\" diyin\n6. Oluşan anahtarı kopyalayın\n7. Buraya yapıştırın",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "💰 Fiyat: Ücretsiz deneme kredisi var. Claude 3 Haiku en ucuz model (~$0.25/1M token).",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontWeight = FontWeight.Medium
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Text(
-                                text = "📋 Ne yazmalıyım? → \"sk-ant-\" ile başlayan anahtarı buraya yapıştırın",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.tertiary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Important notes
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "⚠️ Önemli Notlar",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.error
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "• API anahtarınız sadece bu telefonda saklanır\n• Hiçbir sunucuya gönderilmez\n• İstediğiniz zaman silebilirsiniz\n• API anahtarını paylaşmayın!\n• AI olmadan da uygulama çalışır (varsayılan şablonlar kullanılır)",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Quick tip
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Lightbulb,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "💡 Başlangıç Önerisi",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 13.sp
-                                )
-                                Text(
-                                    text = "Henüz API anahtarınız yoksa bile uygulamayı kullanabilirsiniz. AI olmadan varsayılon şablonlarla e-posta oluşturur. Sonra istediğiniz zaman API anahtarı ekleyebilirsiniz!",
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // ===== LINKEDIN SECTION =====
-        item {
-            Spacer(modifier = Modifier.height(8.dp))
-            SectionHeader(title = "💼 LinkedIn Entegrasyonu")
-        }
-
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                if (linkedInService.isConfigured()) Icons.Default.CheckCircle else Icons.Default.Warning,
-                                contentDescription = null,
-                                tint = if (linkedInService.isConfigured()) Color(0xFF4CAF50) else Color(0xFFFF9800)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = if (linkedInService.isConfigured()) "LinkedIn Bağlı" else "LinkedIn Bağlı Değil",
-                                    fontWeight = FontWeight.Medium
-                                )
-                                if (linkedInService.isConfigured()) {
-                                    Text(
-                                        text = linkedInService.getLinkedInUrl(),
-                                        fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1
-                                    )
-                                }
-                            }
-                        }
-
-                        if (linkedInService.isConfigured()) {
-                            TextButton(
-                                onClick = { linkedInService.disconnect() },
-                                colors = ButtonDefaults.textButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.error
-                                )
-                            ) {
-                                Text("Kes")
-                            }
-                        } else {
-                            Button(onClick = { showLinkedInDialog = true }) {
-                                Text("Bağla")
-                            }
-                        }
-                    }
+                    // NVIDIA NIM
+                    ApiProviderCard(
+                        name = "🟡 NVIDIA NIM",
+                        free = "81+ model ücretsiz (izin gerekli)",
+                        url = "build.nvidia.com",
+                        steps = "1. build.nvidia.com adresine gidin\n2. \"Sign Up\" ile hesap oluşturun\n3. \"Get API Key\" butonuna basın\n4. nvapi-... ile başlayan anahtarı kopyalayın\n5. Not: \"Public API Endpoints\" izni gerekebilir",
+                        color = Color(0xFF76B900)
+                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // LinkedIn Help
+                    // OpenAI
+                    ApiProviderCard(
+                        name = "🔵 OpenAI (ChatGPT)",
+                        free = null,
+                        url = "platform.openai.com/api-keys",
+                        steps = "1. platform.openai.com adresine gidin\n2. Hesap oluşturun veya giriş yapın\n3. \"API Keys\" menüsünden \"Create\" deyin\n4. sk-... ile başlayan anahtarı kopyalayın",
+                        color = Color(0xFF10A37F)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Anthropic
+                    ApiProviderCard(
+                        name = "🟣 Anthropic (Claude)",
+                        free = null,
+                        url = "console.anthropic.com/settings/keys",
+                        steps = "1. console.anthropic.com adresine gidin\n2. Hesap oluşturun veya giriş yapın\n3. \"API Keys\" menüsünden \"Create Key\" deyin\n4. sk-ant-... ile başlayan anahtarı kopyalayın",
+                        color = Color(0xFFD97757)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Guvenlik notu
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                        )
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f))
                     ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "📌 LinkedIn Ne İşe Yarar?",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "• LinkedIn profilinizden bilgi çeker\n• İş ilanlarını tarar\n• Doğrudan LinkedIn'de arama yapar\n• Profil bilgilerinizi CV'nize aktarır",
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Anahtarlar sadece bu telefonda saklanır. Hiçbir yere gönderilmez.", fontSize = 11.sp, color = Color(0xFF4CAF50))
                         }
                     }
                 }
             }
         }
 
-        // ===== ABOUT SECTION =====
+        // ===== HAKKINDA =====
+        item { Spacer(modifier = Modifier.height(8.dp)); SectionHeader("ℹ️ Hakkında") }
         item {
-            Spacer(modifier = Modifier.height(8.dp))
-            SectionHeader(title = "ℹ️ Hakkında")
-        }
-
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            ) {
+            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    SettingsItem(
-                        icon = Icons.Default.Info,
-                        title = "JobHunter v1.0.0",
-                        subtitle = "İş Arama Asistanı"
-                    )
-                    SettingsItem(
-                        icon = Icons.Default.Code,
-                        title = "Açık Kaynak",
-                        subtitle = "GPL v3.0 lisansı ile ücretsiz"
-                    )
-                    SettingsItem(
-                        icon = Icons.Default.Security,
-                        title = "Gizlilik",
-                        subtitle = "Tüm veriler sadece cihazınızda saklanır"
-                    )
-                    SettingsItem(
-                        icon = Icons.Default.PhoneAndroid,
-                        title = "Teknoloji",
-                        subtitle = "Kotlin + Jetpack Compose + Material 3"
-                    )
+                    SettingsItem(icon = Icons.Default.Info, title = "JobHunter v7.0.0", subtitle = "İş Arama Asistanı")
+                    SettingsItem(icon = Icons.Default.Security, title = "Gizlilik", subtitle = "Tüm veriler sadece cihazınızda saklanır")
+                    SettingsItem(icon = Icons.Default.PhoneAndroid, title = "Teknoloji", subtitle = "Kotlin + Jetpack Compose + Material 3")
                 }
             }
         }
 
-        // Bottom spacing
         item { Spacer(modifier = Modifier.height(32.dp)) }
     }
 
-    // ===== GMAIL CONNECT DIALOG =====
-    if (showGmailDialog) {
+    // ===== API KEY DIALOG =====
+    if (showApiDialog) {
         AlertDialog(
-            onDismissRequest = { showGmailDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Gmail Bağla")
-                }
-            },
-            text = {
-                Column {
-                    // Step-by-step guide
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "📱 Adım Adım Bağlantı",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "1. Gmail adresinizi girin\n2. \"Bağla\" butonuna basın\n3. Google hesabınızla giriş yapın\n4. \"E-posta gönderme\" iznini onaylayın\n5. Tamamlandı!",
-                                fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "Gmail Adresiniz",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "Örnek: ornek@gmail.com",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = gmailAddress,
-                        onValueChange = { gmailAddress = it },
-                        placeholder = { Text("ornek@gmail.com") },
-                        leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "💡 Sadece @gmail.com adresleri desteklenir. Diğer e-posta sağlayıcıları için cihaz e-posta uygulaması kullanılır.",
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        gmailService.saveConfig(
-                            com.jobhunter.app.models.EmailConfig(
-                                gmailAddress = gmailAddress,
-                                isConnected = false // Would need OAuth flow
-                            )
-                        )
-                        showGmailDialog = false
-                    },
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Bağla")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showGmailDialog = false }) {
-                    Text("İptal")
-                }
-            }
-        )
-    }
-
-    // ===== AI API DIALOG =====
-    if (showAiDialog) {
-        AlertDialog(
-            onDismissRequest = { showAiDialog = false },
+            onDismissRequest = { showApiDialog = false },
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("AI API Ayarları")
+                    Text("API Ayarları")
                 }
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    // Provider selection
-                    Text(
-                        text = "📌 Adım 1: Sağlayıcı Seçin",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "Hangi AI servisini kullanmak istersiniz?",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Text("Sağlayıcı Seçin", fontWeight = FontWeight.Bold, fontSize = 14.sp)
 
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    // 4 saglayici butonu - 2x2 grid
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
-                            selected = apiProvider == "openai",
-                            onClick = { apiProvider = "openai" },
-                            label = { Text("🟢 OpenAI") },
-                            leadingIcon = if (apiProvider == "openai") {
-                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                            } else null
+                            selected = selectedProvider == "gemini",
+                            onClick = { selectedProvider = "gemini"; apiKeyInput = geminiService.getApiKey() },
+                            label = { Text("🟢 Gemini", fontSize = 11.sp) },
+                            modifier = Modifier.weight(1f)
                         )
                         FilterChip(
-                            selected = apiProvider == "anthropic",
-                            onClick = { apiProvider = "anthropic" },
-                            label = { Text("🟣 Anthropic") },
-                            leadingIcon = if (apiProvider == "anthropic") {
-                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
-                            } else null
+                            selected = selectedProvider == "nvidia",
+                            onClick = { selectedProvider = "nvidia"; apiKeyInput = aiService.getApiKey() },
+                            label = { Text("🟡 NVIDIA", fontSize = 11.sp) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = selectedProvider == "openai",
+                            onClick = { selectedProvider = "openai"; apiKeyInput = aiService.getApiKey() },
+                            label = { Text("🔵 OpenAI", fontSize = 11.sp) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        FilterChip(
+                            selected = selectedProvider == "anthropic",
+                            onClick = { selectedProvider = "anthropic"; apiKeyInput = aiService.getApiKey() },
+                            label = { Text("🟣 Anthropic", fontSize = 11.sp) },
+                            modifier = Modifier.weight(1f)
                         )
                     }
 
-                    HorizontalDivider()
+                    Divider()
 
-                    // API Key input
-                    Text(
-                        text = "📌 Adım 2: API Anahtarınızı Girin",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
+                    Text("API Anahtarınızı Girin", fontWeight = FontWeight.Bold, fontSize = 14.sp)
 
-                    if (apiProvider == "openai") {
-                        Text(
-                            text = "OpenAI API anahtarınızı girin. sk- ile başlar.",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Nereden alınır: https://platform.openai.com/api-keys",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
-                    } else {
-                        Text(
-                            text = "Anthropic API anahtarınızı girin. sk-ant- ile başlar.",
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Nereden alınır: https://console.anthropic.com/settings/keys",
-                            fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
+                    val hint = when (selectedProvider) {
+                        "gemini" -> "aistudio.google.com'dan alınan anahtar"
+                        "nvidia" -> "build.nvidia.com'dan alınan nvapi-... anahtarı"
+                        "openai" -> "platform.openai.com'dan alınan sk-... anahtarı"
+                        else -> "console.anthropic.com'dan alınan sk-ant-... anahtarı"
                     }
+                    Text(hint, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                     OutlinedTextField(
-                        value = apiKey,
-                        onValueChange = { apiKey = it },
+                        value = apiKeyInput,
+                        onValueChange = { apiKeyInput = it },
                         label = { Text("API Anahtarı") },
-                        placeholder = {
-                            Text(
-                                if (apiProvider == "openai") "sk-..." else "sk-ant-..."
-                            )
-                        },
-                        leadingIcon = { Icon(Icons.Default.Key, contentDescription = null) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     )
 
-                    HorizontalDivider()
-
-                    // Test info
-                    Text(
-                        text = "📌 Adım 3: Kaydedin",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "\"Kaydet\" butonuna basın. Anahtarınız sadece bu telefonada saklanır.",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    // Security note
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
-                        )
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f))
                     ) {
-                        Row(
-                            modifier = Modifier.padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Lock,
-                                contentDescription = null,
-                                tint = Color(0xFF4CAF50),
-                                modifier = Modifier.size(16.dp)
-                            )
+                        Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF4CAF50), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Anahtarınız şifrelenerek sadece bu cihazda saklanır. Hiçbir yere gönderilmez.",
-                                fontSize = 11.sp,
-                                color = Color(0xFF4CAF50)
-                            )
+                            Text("Anahtarınız şifrelenerek sadece bu cihazda saklanır.", fontSize = 11.sp, color = Color(0xFF4CAF50))
                         }
                     }
                 }
@@ -871,135 +318,54 @@ fun SettingsScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        aiService.setApiKey(apiKey, apiProvider)
-                        showAiDialog = false
+                        when (selectedProvider) {
+                            "gemini" -> geminiService.setApiKey(apiKeyInput)
+                            else -> aiService.setApiKey(apiKeyInput, selectedProvider)
+                        }
+                        showApiDialog = false
+                        saved = true
                     },
                     shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Kaydet")
-                }
+                ) { Text("Kaydet") }
             },
             dismissButton = {
-                TextButton(onClick = { showAiDialog = false }) {
-                    Text("İptal")
-                }
+                TextButton(onClick = { showApiDialog = false }) { Text("İptal") }
             }
         )
     }
 }
 
-// ===== LINKEDIN DIALOG =====
-    if (showLinkedInDialog) {
-        AlertDialog(
-            onDismissRequest = { showLinkedInDialog = false },
-            title = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Link, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("LinkedIn Bağla")
-                }
-            },
-            text = {
-                Column {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "📌 Adım Adım Bağlantı",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "1. LinkedIn profilinizi tarayıcıda açın\n2. Adres çubuğundaki URL'yi kopyalayın\n3. Aşağıya yapıştırın",
-                                fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "LinkedIn Profil URL'si",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = linkedInUrl,
-                        onValueChange = { linkedInUrl = it },
-                        placeholder = { Text("https://www.linkedin.com/in/...") },
-                        leadingIcon = { Icon(Icons.Default.Link, contentDescription = null) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        linkedInService.saveLinkedInUrl(linkedInUrl)
-                        showLinkedInDialog = false
-                    },
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text("Kaydet")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLinkedInDialog = false }) {
-                    Text("İptal")
-                }
+@Composable
+fun ApiProviderCard(name: String, free: String?, url: String, steps: String, color: Color) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.05f))
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = color)
+            if (free != null) {
+                Text("💰 $free", fontSize = 12.sp, color = color.copy(alpha = 0.8f), fontWeight = FontWeight.Medium)
             }
-        )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(steps, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 16.sp)
+        }
     }
 }
 
 @Composable
 fun SectionHeader(title: String) {
-    Text(
-        text = title,
-        fontSize = 16.sp,
-        fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(vertical = 4.dp)
-    )
+    Text(title, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(vertical = 4.dp))
 }
 
 @Composable
-fun SettingsItem(
-    icon: ImageVector,
-    title: String,
-    subtitle: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
-        )
+fun SettingsItem(icon: ImageVector, title: String, subtitle: String) {
+    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(text = title, fontWeight = FontWeight.Medium)
-            Text(
-                text = subtitle,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Text(title, fontWeight = FontWeight.Medium)
+            Text(subtitle, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

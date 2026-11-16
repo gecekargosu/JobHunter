@@ -11,6 +11,19 @@ import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
 class WebScraperService(private val logger: AppLogger? = null) {
+    // Rate limiting
+    private var lastRequestTime = 0L
+    private val minDelayBetweenRequests = 2000L // 2 seconds
+
+    private suspend fun rateLimit() {
+        val now = System.currentTimeMillis()
+        val timeSinceLastRequest = now - lastRequestTime
+        if (timeSinceLastRequest < minDelayBetweenRequests) {
+            kotlinx.coroutines.delay(minDelayBetweenRequests - timeSinceLastRequest)
+        }
+        lastRequestTime = System.currentTimeMillis()
+    }
+
     // Jsoup handles its own HTTP connections internally
 
     /**
@@ -26,6 +39,7 @@ class WebScraperService(private val logger: AppLogger? = null) {
         val startTime = System.currentTimeMillis()
 
         try {
+            rateLimit()
             val searchQuery = if (location.isNotEmpty()) {
                 "$query şirketi $location iletişim email"
             } else {
@@ -94,6 +108,7 @@ class WebScraperService(private val logger: AppLogger? = null) {
         val startTime = System.currentTimeMillis()
 
         try {
+            rateLimit()
             val searchQuery = "$query company contact email"
             val url = "https://html.duckduckgo.com/html/?q=${java.net.URLEncoder.encode(searchQuery, "UTF-8")}"
 
@@ -161,6 +176,7 @@ class WebScraperService(private val logger: AppLogger? = null) {
         )
 
         try {
+            rateLimit()
             val doc = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36")
                 .timeout(15000)
@@ -200,8 +216,7 @@ class WebScraperService(private val logger: AppLogger? = null) {
                 name = title.split("|").firstOrNull()?.split("-")?.firstOrNull()?.trim() ?: extractDomain(url),
                 description = description,
                 emails = emails.toList(),
-                phone = phones.firstOrNull() ?: "",
-                logoUrl = ogImage
+                phone = phones.firstOrNull() ?: ""
             )
         } catch (e: Exception) {
             defaultResult

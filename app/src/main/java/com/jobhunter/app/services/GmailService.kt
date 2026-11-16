@@ -154,11 +154,12 @@ class GmailService(private val context: Context) {
     }
 
     /**
-     * Send email using device's email app (fallback)
+     * Send email using device's email app (fallback - ANA YÖNTEM)
+     * OAuth gerektirmez, tüm e-posta uygulamalarıyla çalışır
      * @return true if email app was opened, false otherwise
      */
     fun sendEmailViaDevice(to: String, subject: String, body: String): Boolean {
-        logger.logEmailSend(to, subject, "Cihaz Uygulaması", false) // Başlangıç
+        logger.logEmailSend(to, subject, "Cihaz Uygulaması", false)
         try {
             val intent = Intent(Intent.ACTION_SENDTO).apply {
                 data = Uri.parse("mailto:")
@@ -168,12 +169,12 @@ class GmailService(private val context: Context) {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             
-            // Check if there's an email app available
             if (intent.resolveActivity(context.packageManager) != null) {
                 context.startActivity(Intent.createChooser(intent, "E-posta gönder"))
-                return true // Email app opened successfully
+                logger.logEmailSend(to, subject, "Cihaz Uygulaması", true)
+                return true
             } else {
-                // No email app, try with ACTION_SEND
+                // Fallback: ACTION_SEND kullan
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "message/rfc822"
                     putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
@@ -184,15 +185,58 @@ class GmailService(private val context: Context) {
                 if (sendIntent.resolveActivity(context.packageManager) != null) {
                     context.startActivity(Intent.createChooser(sendIntent, "E-posta gönder"))
                     logger.logEmailSend(to, subject, "Cihaz Uygulaması", true)
-                    return true // Email app opened successfully
+                    return true
                 }
             }
-            // No email app available
             logger.w("Gmail", "E-posta uygulaması bulunamadı")
             return false
         } catch (e: Exception) {
-            // Error opening email app
             logger.logError("Gmail", "E-posta uygulaması açma", e.message ?: "Bilinmeyen hata", e)
+            return false
+        }
+    }
+
+    /**
+     * Ek ile e-posta gönder (cihaz uygulaması ile - ANA YÖNTEM)
+     * PDF, resim ve diğer dosyaları otomatik ekler
+     */
+    fun sendEmailWithAttachmentViaDevice(
+        to: String,
+        subject: String,
+        body: String,
+        attachmentUri: Uri? = null,
+        attachmentUris: List<Uri> = emptyList()
+    ): Boolean {
+        logger.logEmailSend(to, subject, "Cihaz Uygulaması (Ekli)", false)
+        try {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "message/rfc822"
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
+                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_TEXT, body)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+                // Tek ek
+                if (attachmentUri != null) {
+                    putExtra(Intent.EXTRA_STREAM, attachmentUri)
+                }
+                // Birden fazla ek
+                else if (attachmentUris.isNotEmpty()) {
+                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(attachmentUris))
+                }
+            }
+
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(Intent.createChooser(intent, "E-posta gönder"))
+                logger.logEmailSend(to, subject, "Cihaz Uygulaması (Ekli)", true)
+                return true
+            } else {
+                logger.w("Gmail", "E-posta uygulaması bulunamadı")
+                return false
+            }
+        } catch (e: Exception) {
+            logger.logError("Gmail", "Ekli e-posta gönderme", e.message ?: "Bilinmeyen hata", e)
             return false
         }
     }

@@ -255,6 +255,18 @@ class EmailViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+        // Duplicate check - avoid sending same email within 5 minutes
+        val recentEmails = sentEmails.value.filter {
+            it.recipientEmail == to &&
+            it.subject == subject &&
+            it.status == "sent" &&
+            (System.currentTimeMillis() - it.sentAt) < 5 * 60 * 1000
+        }
+        if (recentEmails.isNotEmpty()) {
+            _sendResult.value = "Bu adrese aynı konuyla 5 dakika içinde zaten e-posta gönderildi"
+            return
+        }
+
         logger.logUserAction("E-posta Gönderme", to)
         val startTime = System.currentTimeMillis()
 

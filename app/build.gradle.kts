@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("org.jetbrains.kapt")
+    id("com.google.devtools.ksp") version "1.9.10-1.0.13"
 }
 
 android {
@@ -13,8 +13,8 @@ android {
         applicationId = "com.jobhunter.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 7
+        versionName = "7.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -48,6 +48,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/DEPENDENCIES"
+            excludes += "/META-INF/NOTICE.md"
+            excludes += "/META-INF/NOTICE"
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE"
         }
     }
 }
@@ -81,7 +85,7 @@ dependencies {
     // Room Database (with kapt)
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 
     // DataStore (SharedPreferences replacement - modern)
     implementation("androidx.datastore:datastore-preferences:1.0.0")
@@ -101,6 +105,9 @@ dependencies {
     // PDF Creation - Android PdfDocument (built-in, no external lib needed)
     // iText removed due to licensing and compatibility issues
 
+    // PDF Text Extraction (PDFBox for Android)
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
+
     // Coil - Resim yükleme (Glide alternatifi, Compose uyumlu)
     implementation("io.coil-kt:coil-compose:2.5.0")
 
@@ -119,7 +126,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
 
-// kapt configuration for Room
-kapt {
-    correctErrorTypes = true
+// ksp configuration for Room
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - Tüm Ekranlar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #6C63FF;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 16px;
+            color: #9E9E9E;
+        }
+        
+        .screen-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .screen-card {
+            background: #1E1E2E;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-decoration: none;
+            color: #fff;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .screen-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+        }
+        
+        .screen-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: rgba(108, 99, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        
+        .screen-info {
+            flex: 1;
+        }
+        .screen-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .screen-desc {
+            font-size: 13px;
+            color: #9E9E9E;
+        }
+        
+        .screen-arrow {
+            font-size: 20px;
+            color: #6C63FF;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding: 16px;
+            background: #1E1E2E;
+            border-radius: 12px;
+        }
+        .footer h3 {
+            color: #6C63FF;
+            margin-bottom: 8px;
+        }
+        .footer p {
+            font-size: 12px;
+            color: #9E9E9E;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 JobHunter</h1>
+        <p>İş Arama Asistanı - Tüm Ekranlar</p>
+    </div>
+    
+    <div class="screen-list">
+        <a href="dashboard.html" class="screen-card">
+            <div class="screen-icon">🏠</div>
+            <div class="screen-info">
+                <div class="screen-name">Ana Ekran (Dashboard)</div>
+                <div class="screen-desc">İstatistikler, hızlı arama, son şirketler</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+        
+        <a href="job_search.html" class="screen-card">
+            <div class="screen-icon">🔍</div>
+            <div class="screen-info">
+                <div class="screen-name">Akıllı İş Arama (YENİ)</div>
+                <div class="screen-desc">Kariyer.net, Google, LinkedIn ile toplu arama</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+        
+        <a href="company_search.html" class="screen-card">
+            <div class="screen-icon">🏢</div>
+            <div class="screen-info">
+                <div class="screen-name">Şirket Ara</div>
+                <div class="screen-desc">Google/DuckDuckGo ile şirket bulma</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+        
+        <a href="companies.html" class="screen-card">
+            <div class="screen-icon">🏢</div>
+            <div class="screen-info">
+                <div class="screen-name">Şirketlerim</div>
+                <div class="screen-desc">Kayıtlı şirketler, toplu e-posta</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+        
+        <a href="email.html" class="screen-card">
+            <div class="screen-icon">📧</div>
+            <div class="screen-info">
+                <div class="screen-name">E-posta Gönder</div>
+                <div class="screen-desc">AI ile e-posta oluşturma, gönderim</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+        
+        <a href="applications.html" class="screen-card">
+            <div class="screen-icon">📋</div>
+            <div class="screen-info">
+                <div class="screen-name">Başvuru Takibi</div>
+                <div class="screen-desc">Başvuru durumları, ATS skoru</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+        
+        <a href="profile.html" class="screen-card">
+            <div class="screen-icon">👤</div>
+            <div class="screen-info">
+                <div class="screen-name">Profilim</div>
+                <div class="screen-desc">CV, deneyim, eğitim, yetenekler</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+        
+        <a href="settings.html" class="screen-card">
+            <div class="screen-icon">⚙️</div>
+            <div class="screen-info">
+                <div class="screen-name">Ayarlar</div>
+                <div class="screen-desc">Gmail, AI API, LinkedIn ayarları</div>
+            </div>
+            <span class="screen-arrow">→</span>
+        </a>
+    </div>
+    
+    <div class="footer">
+        <h3>📊 Proje Bilgileri</h3>
+        <p>
+            Versiyon: 1.0.0<br>
+            Teknoloji: Kotlin + Jetpack Compose<br>
+            Durum: %95+ Çalışıyor<br>
+            Düzeltilen Hatalar: 8/8 ✅
+        </p>
+    </div>
+</body>
+</html>

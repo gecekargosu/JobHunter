@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - Profilim</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .header {
+            padding: 20px 16px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 24px; color: #6C63FF; }
+        .btn-edit {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #6C63FF;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .profile-card {
+            margin: 16px;
+            background: #1E1E2E;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #6C63FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0 auto 12px;
+        }
+        .profile-name { font-size: 20px; font-weight: bold; }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 16px 16px 8px;
+        }
+        
+        .card {
+            margin: 0 16px 12px;
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .form-group { margin-bottom: 12px; }
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #3D3D54;
+            border-radius: 8px;
+            background: #3D3D54;
+            color: #fff;
+            font-size: 13px;
+        }
+        .form-input:disabled { opacity: 0.6; }
+        
+        .experience-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #3D3D54;
+        }
+        .experience-item:last-child { border-bottom: none; }
+        .exp-position { font-weight: bold; }
+        .exp-company { color: #6C63FF; font-size: 14px; }
+        .exp-date { font-size: 12px; color: #9E9E9E; }
+        .exp-desc { font-size: 13px; color: #9E9E9E; margin-top: 4px; }
+        
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .skill-chip {
+            padding: 6px 12px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 16px;
+            font-size: 13px;
+            color: #6C63FF;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1E1E2E;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid #3D3D54;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #9E9E9E;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        .nav-item.active { color: #6C63FF; }
+        .nav-icon { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>👤 Özgeçmişim</h1>
+        <button class="btn-edit">✏️ Düzenle</button>
+    </div>
+    
+    <div class="profile-card">
+        <div class="avatar">AY</div>
+        <div class="profile-name">Ahmet Yılmaz</div>
+    </div>
+    
+    <div class="section-title">📋 Kişisel Bilgiler</div>
+    <div class="card">
+        <div class="form-group">
+            <input type="text" class="form-input" value="Ahmet" disabled>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-input" value="Yılmaz" disabled>
+        </div>
+        <div class="form-group">
+            <input type="email" class="form-input" value="ahmet@email.com" disabled>
+        </div>
+        <div class="form-group">
+            <input type="tel" class="form-input" value="+90 555 123 4567" disabled>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-input" value="İstanbul" disabled>
+        </div>
+    </div>
+    
+    <div class="section-title">🔗 Sosyal Bağlantılar</div>
+    <div class="card">
+        <div class="form-group">
+            <input type="url" class="form-input" value="linkedin.com/in/ahmetyilmaz" disabled>
+        </div>
+        <div class="form-group">
+            <input type="url" class="form-input" value="github.com/ahmetyilmaz" disabled>
+        </div>
+    </div>
+    
+    <div class="section-title">📝 Özet</div>
+    <div class="card">
+        <textarea class="form-input" rows="3" disabled>5 yıl yazılım geliştirme deneyimim bulunmaktadır. Mobil uygulama geliştirme ve backend çözümleri konusunda uzmanım.</textarea>
+    </div>
+    
+    <div class="section-title">💼 Deneyimler</div>
+    <div class="card">
+        <div class="experience-item">
+            <div class="exp-position">Senior Android Developer</div>
+            <div class="exp-company">TechCorp Yazılım</div>
+            <div class="exp-date">2021-01 - Devam Ediyor</div>
+            <div class="exp-desc">Android uygulamalar geliştirme, takım liderliği</div>
+        </div>
+        <div class="experience-item">
+            <div class="exp-position">Junior Developer</div>
+            <div class="exp-company">DataSoft A.Ş.</div>
+            <div class="exp-date">2019-06 - 2020-12</div>
+            <div class="exp-desc">Web uygulamaları geliştirme</div>
+        </div>
+    </div>
+    
+    <div class="section-title">🎓 Eğitim</div>
+    <div class="card">
+        <div class="experience-item">
+            <div class="exp-position">Bilgisayar Mühendisliği</div>
+            <div class="exp-company">İstanbul Teknik Üniversitesi</div>
+            <div class="exp-date">2015 - 2019</div>
+        </div>
+    </div>
+    
+    <div class="section-title">🛠️ Yetenekler</div>
+    <div class="card">
+        <div class="skills-grid">
+            <span class="skill-chip">Kotlin</span>
+            <span class="skill-chip">Java</span>
+            <span class="skill-chip">Python</span>
+            <span class="skill-chip">Android</span>
+            <span class="skill-chip">Jetpack Compose</span>
+            <span class="skill-chip">Room</span>
+            <span class="skill-chip">REST API</span>
+            <span class="skill-chip">Git</span>
+        </div>
+    </div>
+    
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Ana Ekran</span>
+        </a>
+        <a href="company_search.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span>Şirket Ara</span>
+        </a>
+        <a href="companies.html" class="nav-item">
+            <span class="nav-icon">🏢</span>
+            <span>Şirketler</span>
+        </a>
+        <a href="email.html" class="nav-item">
+            <span class="nav-icon">📧</span>
+            <span>E-posta</span>
+        </a>
+        <a href="applications.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Başvurular</span>
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <span class="nav-icon">👤</span>
+            <span>Profilim</span>
+        </a>
+    </nav>
+</body>
+</html>

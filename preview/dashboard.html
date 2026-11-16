@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - Ana Ekran</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Header */
+        .header {
+            padding: 20px 16px 8px;
+        }
+        .header h1 {
+            font-size: 28px;
+            color: #6C63FF;
+        }
+        .header p {
+            font-size: 16px;
+            color: #9E9E9E;
+        }
+        
+        /* Quick Search */
+        .search-card {
+            margin: 16px;
+            background: linear-gradient(135deg, #1E1E2E, #2D2D44);
+            border-radius: 16px;
+            padding: 16px;
+        }
+        .search-card h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            background: #3D3D54;
+            color: #fff;
+            font-size: 14px;
+        }
+        .search-input::placeholder { color: #9E9E9E; }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 16px;
+        }
+        .stat-card {
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-card.green { background: rgba(76, 175, 80, 0.1); }
+        .stat-card.orange { background: rgba(255, 152, 0, 0.1); }
+        .stat-card.blue { background: rgba(33, 150, 243, 0.1); }
+        .stat-icon { font-size: 24px; margin-bottom: 8px; }
+        .stat-value { font-size: 24px; font-weight: bold; }
+        .stat-card.green .stat-value { color: #4CAF50; }
+        .stat-card.orange .stat-value { color: #FF9800; }
+        .stat-card.blue .stat-value { color: #2196F3; }
+        .stat-card .stat-value { color: #6C63FF; }
+        .stat-label { font-size: 12px; color: #9E9E9E; }
+        
+        /* Quick Actions */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 16px;
+        }
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 16px;
+        }
+        .action-card {
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .action-card:hover { transform: scale(1.02); }
+        .action-icon { font-size: 24px; }
+        .action-text { font-weight: 500; }
+        
+        /* Recent Companies */
+        .company-card {
+            margin: 8px 16px;
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .company-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(108, 99, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6C63FF;
+        }
+        .company-info { flex: 1; }
+        .company-name { font-weight: 500; }
+        .company-email { font-size: 12px; color: #9E9E9E; }
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1E1E2E;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid #3D3D54;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #9E9E9E;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        .nav-item.active { color: #6C63FF; }
+        .nav-item:hover { color: #6C63FF; }
+        .nav-icon { font-size: 24px; }
+        
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #6C63FF;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 JobHunter</h1>
+        <p>İş Arama Asistanın</p>
+    </div>
+    
+    <div class="search-card">
+        <h3>⚡ Hızlı Arama</h3>
+        <input type="text" class="search-input" placeholder="Şirket, sektör veya anahtar kelime...">
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Şirket</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon">📧</div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">E-postalı</div>
+        </div>
+    </div>
+    
+    <div class="stats-grid" style="margin-top: 12px;">
+        <div class="stat-card orange">
+            <div class="stat-icon">📤</div>
+            <div class="stat-value">5</div>
+            <div class="stat-label">Gönderilen</div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Başarılı</div>
+        </div>
+    </div>
+    
+    <div class="section-title">🚀 Hızlı İşlemler</div>
+    
+    <div class="actions-grid">
+        <a href="company_search.html" class="action-card">
+            <span class="action-icon">🔍</span>
+            <span class="action-text">Şirket Ara</span>
+        </a>
+        <a href="companies.html" class="action-card">
+            <span class="action-icon">🏢</span>
+            <span class="action-text">Şirketlerim</span>
+        </a>
+    </div>
+    
+    <div class="actions-grid" style="margin-top: 12px;">
+        <a href="email.html" class="action-card">
+            <span class="action-icon">📧</span>
+            <span class="action-text">E-posta Gönder</span>
+        </a>
+        <a href="applications.html" class="action-card">
+            <span class="action-icon">📋</span>
+            <span class="action-text">Başvurular</span>
+        </a>
+    </div>
+    
+    <div class="section-title">🏢 Son Eklenen Şirketler</div>
+    
+    <div class="company-card">
+        <div class="company-avatar">TE</div>
+        <div class="company-info">
+            <div class="company-name">TechCorp Yazılım</div>
+            <div class="company-email">info@techcorp.com</div>
+        </div>
+        <span style="color: #4CAF50;">✅</span>
+    </div>
+    
+    <div class="company-card">
+        <div class="company-avatar">DA</div>
+        <div class="company-info">
+            <div class="company-name">DataSoft A.Ş.</div>
+            <div class="company-email">hr@datasoft.com.tr</div>
+        </div>
+        <span style="color: #4CAF50;">✅</span>
+    </div>
+    
+    <div class="company-card">
+        <div class="company-avatar">IN</div>
+        <div class="company-info">
+            <div class="company-name">InnoLab Teknoloji</div>
+            <div class="company-email">E-posta yok</div>
+        </div>
+    </div>
+    
+    <div style="height: 80px;"></div>
+    
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span>Ana Ekran</span>
+        </a>
+        <a href="company_search.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span>Şirket Ara</span>
+        </a>
+        <a href="companies.html" class="nav-item">
+            <span class="nav-icon">🏢</span>
+            <span>Şirketler</span>
+        </a>
+        <a href="email.html" class="nav-item">
+            <span class="nav-icon">📧</span>
+            <span>E-posta</span>
+        </a>
+        <a href="applications.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Başvurular</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Profilim</span>
+        </a>
+    </nav>
+    
+    <button class="fab" onclick="location.href='settings.html'">⚙️</button>
+</body>
+</html>

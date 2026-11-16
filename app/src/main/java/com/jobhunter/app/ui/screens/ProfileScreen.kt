@@ -26,7 +26,8 @@ import com.jobhunter.app.viewmodels.ProfileViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    onNavigateToProfileSetup: () -> Unit = {}
 ) {
     val profile by viewModel.profile.collectAsState()
     val isEditing by viewModel.isEditing.collectAsState()
@@ -564,7 +565,7 @@ fun ExperienceCard(exp: WorkExperience, isEditing: Boolean, onDelete: () -> Unit
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+        Divider(modifier = Modifier.padding(top = 8.dp))
     }
 }
 
@@ -598,7 +599,7 @@ fun EducationCard(edu: Education, isEditing: Boolean, onDelete: () -> Unit) {
                 }
             }
         }
-        HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+        Divider(modifier = Modifier.padding(top = 8.dp))
     }
 }
 

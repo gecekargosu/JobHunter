@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - Ayarlar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .header {
+            padding: 20px 16px 8px;
+        }
+        .header h1 { font-size: 24px; color: #6C63FF; }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 16px 16px 8px;
+            color: #9E9E9E;
+        }
+        
+        .card {
+            margin: 0 16px 12px;
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .status-icon { font-size: 20px; }
+        .status-text { font-weight: 500; }
+        .status-sub { font-size: 12px; color: #9E9E9E; }
+        
+        .btn-connect {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #6C63FF;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-disconnect {
+            background: none;
+            border: none;
+            color: #f44336;
+            cursor: pointer;
+        }
+        
+        .info-box {
+            margin-top: 12px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .info-box h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #6C63FF;
+        }
+        .info-box p {
+            font-size: 12px;
+            color: #9E9E9E;
+            line-height: 1.5;
+        }
+        .info-box ul {
+            font-size: 12px;
+            color: #9E9E9E;
+            padding-left: 16px;
+            margin-top: 4px;
+        }
+        
+        .ai-section {
+            margin-top: 12px;
+        }
+        .ai-card {
+            margin: 0 16px 12px;
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .ai-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #6C63FF;
+            color: white;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        
+        .help-box {
+            margin: 0 16px 12px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .help-box h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #6C63FF;
+        }
+        .help-box h4 {
+            font-size: 14px;
+            margin: 12px 0 4px;
+        }
+        .help-box p, .help-box ul {
+            font-size: 12px;
+            color: #9E9E9E;
+            line-height: 1.5;
+        }
+        .help-box ul { padding-left: 16px; }
+        
+        .provider-card {
+            margin: 8px 0;
+            background: #1E1E2E;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .provider-card h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .provider-card p {
+            font-size: 12px;
+            color: #9E9E9E;
+            line-height: 1.5;
+        }
+        .provider-card .price {
+            color: #4CAF50;
+            font-weight: 500;
+        }
+        .provider-card .url {
+            color: #6C63FF;
+        }
+        
+        .warning-box {
+            margin: 8px 0;
+            background: rgba(244, 67, 54, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        .warning-box h4 {
+            color: #f44336;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .warning-box p {
+            font-size: 12px;
+            color: #9E9E9E;
+        }
+        
+        .tip-box {
+            margin: 8px 0;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+        }
+        .tip-icon { font-size: 24px; }
+        .tip-content h4 { font-size: 13px; }
+        .tip-content p { font-size: 12px; color: #9E9E9E; }
+        
+        .about-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+        }
+        .about-icon { font-size: 20px; }
+        .about-title { font-weight: 500; }
+        .about-sub { font-size: 12px; color: #9E9E9E; }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1E1E2E;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid #3D3D54;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #9E9E9E;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        .nav-item.active { color: #6C63FF; }
+        .nav-icon { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚙️ Ayarlar</h1>
+    </div>
+    
+    <div class="section-title">📧 Gmail Hesabı</div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-status">
+                <span class="status-icon">⚠️</span>
+                <div>
+                    <div class="status-text">Gmail Bağlı Değil</div>
+                </div>
+            </div>
+            <button class="btn-connect">Bağla</button>
+        </div>
+        
+        <div class="info-box">
+            <h4>📌 Ne işe yarar?</h4>
+            <ul>
+                <li>Bulduğunuz şirketlere otomatik e-posta gönderir</li>
+                <li>Ön yazı ve CV ekler</li>
+                <li>Gönderim geçmişini tutar</li>
+            </ul>
+            
+            <h4>📌 Nasıl bağlanır?</h4>
+            <p>1. Gmail adresinizi girin<br>2. "Bağla" butonuna basın<br>3. Google hesabınızla giriş yapın<br>4. İzinleri onaylayın</h4>
+            
+            <h4>💡 İpucu</h4>
+            <p>Gmail bağlamadan da e-posta gönderebilirsiniz — cihazın kendi e-posta uygulaması açılır.</p>
+        </div>
+    </div>
+    
+    <div class="section-title">🤖 AI Ayarları (Yapay Zeka)</div>
+    <div class="ai-card">
+        <div class="card-header">
+            <div class="card-status">
+                <span class="status-icon">⚠️</span>
+                <div>
+                    <div class="status-text">AI Yapılandırılmadı</div>
+                    <div class="status-sub">AI ile otomatik e-posta oluşturmak için API anahtarı gerekli</div>
+                </div>
+            </div>
+        </div>
+        <button class="ai-btn">🔑 API Anahtarı Gir</button>
+    </div>
+    
+    <div class="help-box">
+        <h3>🤖 AI Nedir ve Ne İşe Yarar?</h3>
+        
+        <h4>📌 AI ile ne yapabilirsiniz?</h4>
+        <ul>
+            <li>Otomatik ön yazı oluşturur (İngilizce/Türkçe)</li>
+            <li>Şirkete özel e-posta yazar</li>
+            <li>CV'nizi analiz eder</li>
+            <li>Profesyonel içerik üretir</li>
+        </ul>
+        
+        <div class="provider-card">
+            <h4>🟢 OpenAI (ChatGPT)</h4>
+            <p>1. <span class="url">https://platform.openai.com</span> adresine gidin<br>
+            2. Hesap oluşturun<br>
+            3. API Keys'ten anahtar alın<br>
+            <span class="price">💰 İlk $5 ücretsiz</span></p>
+        </div>
+        
+        <div class="provider-card">
+            <h4>🟣 Anthropic (Claude)</h4>
+            <p>1. <span class="url">https://console.anthropic.com</span> adresine gidin<br>
+            2. Hesap oluşturun<br>
+            3. API Keys'ten anahtar alın<br>
+            <span class="price">💰 Ücretsiz deneme var</span></p>
+        </div>
+        
+        <div class="warning-box">
+            <h4>⚠️ Önemli Notlar</h4>
+            <p>• API anahtarınız sadece bu telefonda saklanır<br>
+            • Hiçbir sunucuya gönderilmez<br>
+            • İstediğiniz zaman silebilirsiniz</p>
+        </div>
+    </div>
+    
+    <div class="section-title">💼 LinkedIn Entegrasyonu</div>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-status">
+                <span class="status-icon">⚠️</span>
+                <div>
+                    <div class="status-text">LinkedIn Bağlı Değil</div>
+                </div>
+            </div>
+            <button class="btn-connect">Bağla</button>
+        </div>
+        
+        <div class="info-box">
+            <h4>📌 LinkedIn Ne İşe Yarar?</h4>
+            <ul>
+                <li>LinkedIn profilinizden bilgi çeker</li>
+                <li>İş ilanlarını tarar</li>
+                <li>Doğrudan LinkedIn'de arama yapar</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="section-title">ℹ️ Hakkında</div>
+    <div class="card">
+        <div class="about-item">
+            <span class="about-icon">ℹ️</span>
+            <div>
+                <div class="about-title">JobHunter v1.0.0</div>
+                <div class="about-sub">İş Arama Asistanı</div>
+            </div>
+        </div>
+        <div class="about-item">
+            <span class="about-icon">💻</span>
+            <div>
+                <div class="about-title">Açık Kaynak</div>
+                <div class="about-sub">GPL v3.0 lisansı ile ücretsiz</div>
+            </div>
+        </div>
+        <div class="about-item">
+            <span class="about-icon">🔒</span>
+            <div>
+                <div class="about-title">Gizlilik</div>
+                <div class="about-sub">Tüm veriler sadece cihazınızda saklanır</div>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Ana Ekran</span>
+        </a>
+        <a href="company_search.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span>Şirket Ara</span>
+        </a>
+        <a href="companies.html" class="nav-item">
+            <span class="nav-icon">🏢</span>
+            <span>Şirketler</span>
+        </a>
+        <a href="email.html" class="nav-item">
+            <span class="nav-icon">📧</span>
+            <span>E-posta</span>
+        </a>
+        <a href="applications.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Başvurular</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Profilim</span>
+        </a>
+    </nav>
+</body>
+</html>

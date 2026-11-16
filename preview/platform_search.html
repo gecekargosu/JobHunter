@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - Akıllı İş Arama</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0e17;
+            color: #fff;
+            max-width: 420px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        .status-bar {
+            padding: 8px 16px;
+            background: #111827;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #888;
+        }
+        .top-bar {
+            padding: 16px;
+            background: #111827;
+            border-bottom: 1px solid #1f2937;
+        }
+        .top-bar h1 {
+            font-size: 20px;
+            color: #00d4ff;
+        }
+        .search-section {
+            padding: 16px;
+        }
+        .search-box {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            background: #111827;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+        }
+        .search-input:focus { border-color: #00d4ff; }
+        .search-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            background: linear-gradient(135deg, #00d4ff, #0066ff);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .popular-section {
+            padding: 0 16px;
+            margin-top: 16px;
+        }
+        .popular-section h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        .popular-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tag {
+            padding: 6px 12px;
+            background: #1f2937;
+            border: 1px solid #374151;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+        .tag:hover { border-color: #00d4ff; color: #00d4ff; }
+        .platform-filters {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .platform-chip {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid #374151;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+        .platform-chip.active { background: rgba(0, 212, 255, 0.15); color: #00d4ff; border-color: #00d4ff; }
+        .platform-chip.kariyer.active { background: rgba(25, 118, 210, 0.15); color: #1976D2; border-color: #1976D2; }
+        .platform-chip.linkedin.active { background: rgba(0, 119, 181, 0.15); color: #0077B5; border-color: #0077B5; }
+        .platform-chip.indeed.active { background: rgba(33, 100, 243, 0.15); color: #2164F3; border-color: #2164F3; }
+        .platform-chip.google.active { background: rgba(66, 133, 244, 0.15); color: #4285F4; border-color: #4285F4; }
+        .type-filters {
+            display: flex;
+            gap: 8px;
+            padding: 4px 16px 12px;
+        }
+        .type-chip {
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 11px;
+            border: 1px solid #374151;
+            background: transparent;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+        .type-chip.active { background: #1f2937; color: #fff; border-color: #fff; }
+        .selection-bar {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 0 16px 12px;
+            display: flex;
+            align-items: center;
+        }
+        .selection-bar .count { flex: 1; font-weight: 700; font-size: 14px; }
+        .apply-btn {
+            padding: 8px 16px;
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .job-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 0 16px 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .job-card.selected { border-color: #00d4ff; background: rgba(0, 212, 255, 0.05); }
+        .checkbox { width: 20px; height: 20px; border: 2px solid #374151; border-radius: 4px; flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+        .checkbox.checked { background: #00d4ff; border-color: #00d4ff; }
+        .job-logo {
+            width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;
+        }
+        .job-info { flex: 1; }
+        .job-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+        .job-company { font-size: 12px; color: #9ca3af; }
+        .job-location { font-size: 12px; color: #6b7280; }
+        .source-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 420px; background: #111827;
+            border-top: 1px solid #1f2937;
+            display: flex; justify-content: space-around;
+            padding: 8px 0;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            font-size: 10px; color: #6b7280; cursor: pointer; gap: 2px;
+        }
+        .nav-item.active { color: #00d4ff; }
+        .nav-item .icon { font-size: 20px; }
+    </style>
+</head>
+<body>
+    <div class="status-bar">
+        <span>18:49</span>
+        <span>📶 🔋 %87</span>
+    </div>
+
+    <div class="top-bar">
+        <h1>🔍 Akıllı İş Arama</h1>
+    </div>
+
+    <div class="search-section">
+        <div class="search-box">
+            <input class="search-input" type="text" placeholder="İş ara... (ör: yapay zeka, flutter developer)" value="yapay zeka">
+            <button class="search-btn">🔍 Tüm Platformlarda Ara</button>
+        </div>
+    </div>
+
+    <!-- Popüler aramalar (arama yapılmadığında görünür) -->
+    <div class="popular-section">
+        <h3>🔥 Popüler Aramalar</h3>
+        <div class="popular-tags">
+            <span class="tag">Yazılım Geliştirici</span>
+            <span class="tag">Yapay Zeka</span>
+            <span class="tag">Flutter Developer</span>
+            <span class="tag">React Developer</span>
+            <span class="tag">Python Developer</span>
+            <span class="tag">Full Stack</span>
+            <span class="tag">Part Time</span>
+            <span class="tag">Remote</span>
+            <span class="tag">Stajyer</span>
+            <span class="tag">Siber Güvenlik</span>
+        </div>
+    </div>
+
+    <!-- Arama sonuçları (arama yapıldığında görünür) -->
+    <div class="platform-filters">
+        <span class="platform-chip active">Tümü (156)</span>
+        <span class="platform-chip kariyer">🎯 Kariyer.net (42)</span>
+        <span class="platform-chip linkedin">💼 LinkedIn (38)</span>
+        <span class="platform-chip indeed">🔍 Indeed (45)</span>
+        <span class="platform-chip google">🌐 Google Jobs (31)</span>
+    </div>
+
+    <div class="type-filters">
+        <span class="type-chip active">Tümü</span>
+        <span class="type-chip">Tam Zamanlı</span>
+        <span class="type-chip">Yarı Zamanlı</span>
+        <span class="type-chip">Uzaktan</span>
+    </div>
+
+    <!-- Seçim barı -->
+    <div class="selection-bar">
+        <input type="checkbox" class="checkbox checked" style="margin-right: 8px;">
+        <span class="count">3 ilan seçildi</span>
+        <button class="apply-btn">🚀 Toplu Başvuru Yap</button>
+    </div>
+
+    <!-- Sonuçlar -->
+    <div class="job-card selected">
+        <div class="checkbox checked"></div>
+        <div class="job-logo" style="background: rgba(25, 118, 210, 0.15); color: #1976D2;">YT</div>
+        <div class="job-info">
+            <div class="job-title">Yapay Zeka Mühendisi</div>
+            <div class="job-company">📍 Yenitech Yazılım</div>
+            <div class="job-location">📍 İstanbul, Kadıköy</div>
+            <span class="source-badge" style="background: rgba(25,118,210,0.15); color: #1976D2;">Kariyer.net</span>
+        </div>
+    </div>
+
+    <div class="job-card selected">
+        <div class="checkbox checked"></div>
+        <div class="job-logo" style="background: rgba(0, 119, 181, 0.15); color: #0077B5;">ML</div>
+        <div class="job-info">
+            <div class="job-title">Machine Learning Developer</div>
+            <div class="job-company">📍 Meridian Labs</div>
+            <div class="job-location">📍 Ankara (Uzaktan)</div>
+            <span class="source-badge" style="background: rgba(0,119,181,0.15); color: #0077B5;">LinkedIn</span>
+        </div>
+    </div>
+
+    <div class="job-card selected">
+        <div class="checkbox checked"></div>
+        <div class="job-logo" style="background: rgba(66, 133, 244, 0.15); color: #4285F4;">DA</div>
+        <div class="job-info">
+            <div class="job-title">Data Analyst - AI/ML</div>
+            <div class="job-company">📍 DataAnalytica</div>
+            <div class="job-location">📍 İzmir</div>
+            <span class="source-badge" style="background: rgba(66,133,244,0.15); color: #4285F4;">Google Jobs</span>
+        </div>
+    </div>
+
+    <div class="job-card">
+        <div class="checkbox"></div>
+        <div class="job-logo" style="background: rgba(33, 100, 243, 0.15); color: #2164F3;">BT</div>
+        <div class="job-info">
+            <div class="job-title">AI Chatbot Geliştirici</div>
+            <div class="job-company">📍 BotTech Solutions</div>
+            <div class="job-location">📍 İstanbul, Beşiktaş</div>
+            <span class="source-badge" style="background: rgba(33,100,243,0.15); color: #2164F3;">Indeed</span>
+        </div>
+    </div>
+
+    <div class="job-card">
+        <div class="checkbox"></div>
+        <div class="job-logo" style="background: rgba(25, 118, 210, 0.15); color: #1976D2;">SY</div>
+        <div class="job-info">
+            <div class="job-title">Senior AI Engineer</div>
+            <div class="job-company">📍 Synapse AI</div>
+            <div class="job-location">📍 İstanbul, Levent</div>
+            <span class="source-badge" style="background: rgba(25,118,210,0.15); color: #1976D2;">Kariyer.net</span>
+        </div>
+    </div>
+
+    <div style="height: 70px;"></div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <span class="icon">🔍</span>
+            <span>İş Ara</span>
+        </div>
+        <div class="nav-item">
+            <span class="icon">🏠</span>
+            <span>Ana Ekran</span>
+        </div>
+        <div class="nav-item">
+            <span class="icon">🏢</span>
+            <span>Şirketler</span>
+        </div>
+        <div class="nav-item">
+            <span class="icon">📧</span>
+            <span>E-posta</span>
+        </div>
+        <div class="nav-item">
+            <span class="icon">📋</span>
+            <span>Başvurular</span>
+        </div>
+        <div class="nav-item">
+            <span class="icon">👤</span>
+            <span>Profilim</span>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - Başvuru Takibi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        .header {
+            padding: 20px 16px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 24px; color: #6C63FF; }
+        .btn-add {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #6C63FF;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 0 16px;
+        }
+        .stat-card {
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+        .stat-card.blue { background: rgba(33, 150, 243, 0.1); }
+        .stat-card.green { background: rgba(76, 175, 80, 0.1); }
+        .stat-card.orange { background: rgba(255, 152, 0, 0.1); }
+        .stat-card.red { background: rgba(244, 67, 54, 0.1); }
+        .stat-value { font-size: 18px; font-weight: bold; }
+        .stat-card .stat-value { color: #6C63FF; }
+        .stat-card.blue .stat-value { color: #2196F3; }
+        .stat-card.green .stat-value { color: #4CAF50; }
+        .stat-card.orange .stat-value { color: #FF9800; }
+        .stat-card.red .stat-value { color: #F44336; }
+        .stat-label { font-size: 10px; color: #9E9E9E; }
+        
+        .filters {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+        }
+        .filter-chip {
+            padding: 6px 12px;
+            border: 1px solid #3D3D54;
+            border-radius: 16px;
+            background: transparent;
+            color: #9E9E9E;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .filter-chip.active {
+            background: #6C63FF;
+            color: white;
+            border-color: #6C63FF;
+        }
+        
+        .app-card {
+            margin: 8px 16px;
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .app-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(108, 99, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #6C63FF;
+        }
+        .app-info { flex: 1; }
+        .app-company { font-weight: bold; }
+        .app-position { font-size: 12px; color: #9E9E9E; }
+        .app-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+        .status-applied { background: rgba(33, 150, 243, 0.2); color: #2196F3; }
+        .status-interview { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        .status-rejected { background: rgba(244, 67, 54, 0.2); color: #F44336; }
+        .status-offer { background: rgba(156, 39, 176, 0.2); color: #9C27B0; }
+        
+        .ats-score {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6C63FF;
+        }
+        .app-date {
+            font-size: 11px;
+            color: #9E9E9E;
+            margin-top: 8px;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1E1E2E;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid #3D3D54;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #9E9E9E;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        .nav-item.active { color: #6C63FF; }
+        .nav-icon { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Başvuru Takibi</h1>
+        <button class="btn-add">➕ Yeni Başvuru</button>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">15</div>
+            <div class="stat-label">Toplam</div>
+        </div>
+        <div class="stat-card blue">
+            <div class="stat-value">10</div>
+            <div class="stat-label">Başvuruldu</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Görüşme</div>
+        </div>
+    </div>
+    
+    <div class="stats-grid" style="margin-top: 8px;">
+        <div class="stat-card orange">
+            <div class="stat-value">1</div>
+            <div class="stat-label">Teklif</div>
+        </div>
+        <div class="stat-card red">
+            <div class="stat-value">1</div>
+            <div class="stat-label">Red</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">68</div>
+            <div class="stat-label">Ort. ATS</div>
+        </div>
+    </div>
+    
+    <div class="filters">
+        <button class="filter-chip active">Tümü</button>
+        <button class="filter-chip">Başvuruldu</button>
+        <button class="filter-chip">Görüşme</button>
+        <button class="filter-chip">Teklif</button>
+    </div>
+    
+    <div class="app-card">
+        <div class="app-header">
+            <div class="app-avatar">TC</div>
+            <div class="app-info">
+                <div class="app-company">TechCorp Yazılım</div>
+                <div class="app-position">Senior Android Developer</div>
+            </div>
+            <span class="app-status status-interview">Görüşme</span>
+        </div>
+        <div class="ats-score">📊 ATS Skoru: 85/100</div>
+        <div class="app-date">📅 Başvuru: 28 Ağu 2026</div>
+    </div>
+    
+    <div class="app-card">
+        <div class="app-header">
+            <div class="app-avatar">DS</div>
+            <div class="app-info">
+                <div class="app-company">DataSoft A.Ş.</div>
+                <div class="app-position">Full Stack Developer</div>
+            </div>
+            <span class="app-status status-applied">Başvuruldu</span>
+        </div>
+        <div class="ats-score">📊 ATS Skoru: 72/100</div>
+        <div class="app-date">📅 Başvuru: 30 Ağu 2026</div>
+    </div>
+    
+    <div class="app-card">
+        <div class="app-header">
+            <div class="app-avatar">IL</div>
+            <div class="app-info">
+                <div class="app-company">InnoLab Teknoloji</div>
+                <div class="app-position">Mobile Developer</div>
+            </div>
+            <span class="app-status status-offer">Teklif</span>
+        </div>
+        <div class="ats-score">📊 ATS Skoru: 92/100</div>
+        <div class="app-date">📅 Başvuru: 25 Ağu 2026</div>
+    </div>
+    
+    <div class="app-card">
+        <div class="app-header">
+            <div class="app-avatar">CY</div>
+            <div class="app-info">
+                <div class="app-company">CyberSec Güvenlik</div>
+                <div class="app-position">Backend Developer</div>
+            </div>
+            <span class="app-status status-rejected">Red</span>
+        </div>
+        <div class="ats-score">📊 ATS Skoru: 45/100</div>
+        <div class="app-date">📅 Başvuru: 20 Ağu 2026</div>
+    </div>
+    
+    <div style="height: 80px;"></div>
+    
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Ana Ekran</span>
+        </a>
+        <a href="company_search.html" class="nav-item">
+            <span class="nav-icon">🔍</span>
+            <span>Şirket Ara</span>
+        </a>
+        <a href="companies.html" class="nav-item">
+            <span class="nav-icon">🏢</span>
+            <span>Şirketler</span>
+        </a>
+        <a href="email.html" class="nav-item">
+            <span class="nav-icon">📧</span>
+            <span>E-posta</span>
+        </a>
+        <a href="applications.html" class="nav-item active">
+            <span class="nav-icon">📋</span>
+            <span>Başvurular</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Profilim</span>
+        </a>
+    </nav>
+</body>
+</html>

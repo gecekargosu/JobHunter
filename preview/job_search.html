@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunter - Akıllı İş Arama</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #121212;
+            color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+        .header { padding: 20px 16px 8px; }
+        .header h1 { font-size: 24px; color: #6C63FF; }
+        .header p { font-size: 14px; color: #9E9E9E; }
+        
+        .search-box {
+            margin: 12px 16px;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 16px;
+            border: 2px solid #3D3D54;
+            border-radius: 12px;
+            background: #1E1E2E;
+            color: #fff;
+            font-size: 14px;
+        }
+        .search-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: #6C63FF;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+        }
+        
+        .sources {
+            padding: 0 16px;
+            margin-bottom: 12px;
+        }
+        .sources h4 { font-size: 13px; color: #9E9E9E; margin-bottom: 8px; }
+        .source-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .source-chip {
+            padding: 6px 12px;
+            border: 1px solid #3D3D54;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            background: transparent;
+            color: #fff;
+        }
+        .source-chip.active {
+            background: #6C63FF;
+            border-color: #6C63FF;
+        }
+        
+        .popular {
+            padding: 0 16px;
+            margin-bottom: 12px;
+        }
+        .popular h4 { font-size: 13px; color: #9E9E9E; margin-bottom: 8px; }
+        .popular-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        .popular-chip {
+            padding: 6px 12px;
+            background: #1E1E2E;
+            border-radius: 16px;
+            font-size: 12px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        
+        .selection-bar {
+            margin: 12px 16px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .selection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .selection-count { font-weight: bold; color: #6C63FF; }
+        .btn-attach {
+            width: 100%;
+            padding: 10px;
+            border: 1px dashed #6C63FF;
+            border-radius: 8px;
+            background: transparent;
+            color: #6C63FF;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        .btn-apply {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #6C63FF;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .results-count {
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .job-card {
+            margin: 8px 16px;
+            background: #1E1E2E;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            gap: 8px;
+        }
+        .job-card.selected {
+            border: 1px solid #6C63FF;
+            background: rgba(108, 99, 255, 0.05);
+        }
+        .job-checkbox { width: 20px; accent-color: #6C63FF; }
+        .job-source {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(108, 99, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .job-info { flex: 1; }
+        .job-title { font-weight: bold; font-size: 14px; }
+        .job-company { color: #6C63FF; font-size: 13px; }
+        .job-meta {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+        .job-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+        .tag-location { background: rgba(156, 39, 176, 0.1); color: #9C27B0; }
+        .tag-type { background: rgba(33, 150, 243, 0.1); color: #2196F3; }
+        .tag-level { background: rgba(76, 175, 80, 0.1); color: #4CAF50; }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1E1E2E;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: 1px solid #3D3D54;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #9E9E9E;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        .nav-item.active { color: #6C63FF; }
+        .nav-icon { font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Akıllı İş Arama</h1>
+        <p>Kariyer.net, Google, LinkedIn ve Indeed'de ara</p>
+    </div>
+    
+    <div class="search-box">
+        <input type="text" class="search-input" placeholder="Örn: yapay zeka, part time yazılım..." value="yapay zeka">
+        <button class="search-btn">🔍</button>
+    </div>
+    
+    <div class="sources">
+        <h4>📡 Arama Kaynakları</h4>
+        <div class="source-chips">
+            <button class="source-chip active">🏢 Kariyer.net</button>
+            <button class="source-chip active">🔍 Google Jobs</button>
+            <button class="source-chip">💼 LinkedIn</button>
+            <button class="source-chip">📋 Indeed</button>
+        </div>
+    </div>
+    
+    <div class="popular">
+        <h4>🔥 Popüler Aramalar</h4>
+        <div class="popular-chips">
+            <span class="popular-chip">yapay zeka</span>
+            <span class="popular-chip">backend developer</span>
+            <span class="popular-chip">mobile developer</span>
+            <span class="popular-chip">full stack</span>
+            <span class="popular-chip">data scientist</span>
+        </div>
+    </div>
+    
+    <div class="popular">
+        <h4>⏰ Part Time Aramalar</h4>
+        <div class="popular-chips">
+            <span class="popular-chip">part time yazılım</span>
+            <span class="popular-chip">part time developer</span>
+            <span class="popular-chip">hafta sonu yazılım</span>
+        </div>
+    </div>
+    
+    <div class="selection-bar">
+        <div class="selection-header">
+            <span class="selection-count">📋 12 iş ilanı seçildi</span>
+            <button style="background:none;border:none;color:#9E9E9E;cursor:pointer;">Temizle</button>
+        </div>
+        <button class="btn-attach">📎 Ekler (2 belge seçildi: CV + Sertifika)</button>
+        <button class="btn-apply">🚀 Toplu Başvuru Yap (12 İlan)</button>
+    </div>
+    
+    <div class="results-count">
+        <span>📋 24 iş ilanı bulundu</span>
+        <button style="background:none;border:none;color:#6C63FF;cursor:pointer;">Tümünü Seç</button>
+    </div>
+    
+    <div class="job-card selected">
+        <input type="checkbox" class="job-checkbox" checked>
+        <div class="job-source">🏢</div>
+        <div class="job-info">
+            <div class="job-title">Yapay Zeka Mühendisi</div>
+            <div class="job-company">TechCorp Yazılım</div>
+            <div class="job-meta">
+                <span class="job-tag tag-location">📍 İstanbul</span>
+                <span class="job-tag tag-type">Tam Zamanlı</span>
+                <span class="job-tag tag-level">Senior</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="job-card selected">
+        <input type="checkbox" class="job-checkbox" checked>
+        <div class="job-source">🔍</div>
+        <div class="job-info">
+            <div class="job-title">ML Engineer</div>
+            <div class="job-company">DataSoft A.Ş.</div>
+            <div class="job-meta">
+                <span class="job-tag tag-location">📍 Ankara</span>
+                <span class="job-tag tag-type">Full Time</span>
+                <span class="job-tag tag-level">Mid</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="job-card selected">
+        <input type="checkbox" class="job-checkbox" checked>
+        <div class="job-source">💼</div>
+        <div class="job-info">
+            <div class="job-title">AI Research Intern</div>
+            <div class="job-company">InnoLab Teknoloji</div>
+            <div class="job-meta">
+                <span class="job-tag tag-location">📍 Uzaktan</span>
+                <span class="job-tag tag-type">Staj</span>
+                <span class="job-tag tag-level">Junior</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="job-card">
+        <input type="checkbox" class="job-checkbox">
+        <div class="job-source">🏢</div>
+        <div class="job-info">
+            <div class="job-title">Data Scientist</div>
+            <div class="job-company">CyberSec Güvenlik</div>
+            <div class="job-meta">
+                <span class="job-tag tag-location">📍 İzmir</span>
+                <span class="job-tag tag-type">Part Time</span>
+                <span class="job-tag tag-level">Mid</span>
+            </div>
+        </div>
+    </div>
+    
+    <nav class="bottom-nav">
+        <a href="dashboard.html" class="nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Ana Ekran</span>
+        </a>
+        <a href="job_search.html" class="nav-item active">
+            <span class="nav-icon">🔍</span>
+            <span>İş Ara</span>
+        </a>
+        <a href="companies.html" class="nav-item">
+            <span class="nav-icon">🏢</span>
+            <span>Şirketler</span>
+        </a>
+        <a href="email.html" class="nav-item">
+            <span class="nav-icon">📧</span>
+            <span>E-posta</span>
+        </a>
+        <a href="applications.html" class="nav-item">
+            <span class="nav-icon">📋</span>
+            <span>Başvurular</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span>Profilim</span>
+        </a>
+    </nav>
+</body>
+</html>

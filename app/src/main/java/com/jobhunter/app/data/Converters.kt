@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.jobhunter.app.models.ApplicationStatus
+import com.jobhunter.app.models.DocumentType
 import com.jobhunter.app.models.Education
 import com.jobhunter.app.models.WorkExperience
 
@@ -57,5 +58,42 @@ class Converters {
     fun toStringList(value: String): List<String> {
         val type = object : TypeToken<List<String>>() {}.type
         return gson.fromJson(value, type)
+    }
+
+    // DocumentType converter
+    @TypeConverter
+    fun fromDocumentType(type: DocumentType): String {
+        return type.name
+    }
+
+    @TypeConverter
+    fun toDocumentType(value: String): DocumentType {
+        return try {
+            DocumentType.valueOf(value)
+        } catch (e: Exception) {
+            DocumentType.OTHER
+        }
+    }
+
+    // Boolean converter
+    @TypeConverter
+    fun fromBoolean(value: Boolean): Int {
+        return if (value) 1 else 0
+    }
+
+    @TypeConverter
+    fun toBoolean(value: Int): Boolean {
+        return value == 1
+    }
+
+    // Long converter (for timestamps)
+    @TypeConverter
+    fun fromLong(value: Long?): String {
+        return value?.toString() ?: ""
+    }
+
+    @TypeConverter
+    fun toLong(value: String): Long? {
+        return value.toLongOrNull()
     }
 }

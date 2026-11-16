@@ -9,6 +9,7 @@ import androidx.work.*
 import com.jobhunter.app.data.JobHunterDatabase
 import com.jobhunter.app.models.SentEmail
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
@@ -121,10 +122,13 @@ class BulkEmailWorker(
                     )
                     gmailService.sendEmail(draft)
                 } else {
-                    // Gmail not connected, cannot send automatically
-                    // Log the attempt but mark as failed
-                    android.util.Log.w("BulkEmailWorker", "Gmail bağlı değil, otomatik gönderim yapılamıyor: ${company.name}")
-                    false
+                    // Gmail not connected, try device email app as fallback
+                    try {
+                        gmailService.sendEmailViaDevice(company.email, subject, body)
+                    } catch (e: Exception) {
+                        android.util.Log.w("BulkEmailWorker", "Gmail bağlı değil ve cihaz e-posta uygulaması açılamıyor: ${company.name}")
+                        false
+                    }
                 }
 
                 // Save sent email

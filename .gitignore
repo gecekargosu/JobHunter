@@ -1,0 +1,23 @@
+# Gradle
+build/
+.gradle/
+*.hprof
+
+# Android Studio
+.idea/
+*.iml
+local.properties
+.kotlin/
+captures/
+
+# derleme ciktilari
+*.class
+*.dex
+*.ap_
+*.jks
+*.keystore
+
+# sistem
+.DS_Store
+Thumbs.db
+desktop.ini

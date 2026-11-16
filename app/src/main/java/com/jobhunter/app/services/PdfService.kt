@@ -31,6 +31,8 @@ class PdfService(private val context: Context) {
         logger.i("PDF", "CV PDF oluşturuluyor: ${profile.firstName} ${profile.lastName}")
         val startTime = System.currentTimeMillis()
         val document = PdfDocument()
+        
+        try {
 
         // Paint objects for text styling
         val titlePaint = Paint().apply {
@@ -270,10 +272,10 @@ class PdfService(private val context: Context) {
                 color = android.graphics.Color.parseColor("#1565C0")
                 isAntiAlias = true
             }
+            val chipHeight = 22f
 
             for (skill in profile.skills) {
                 val chipWidth = chipPaint.measureText(skill) + 20f
-                val chipHeight = 22f
 
                 // Check if we need a new line
                 if (x + chipWidth > PAGE_WIDTH - MARGIN_RIGHT) {
@@ -359,13 +361,14 @@ class PdfService(private val context: Context) {
             document.writeTo(outputStream)
         }
 
-        document.close()
-
         val duration = System.currentTimeMillis() - startTime
         logger.logPdfGeneration(file.name, true, file.length())
         logger.d("PDF", "PDF oluşturuldu: ${file.name} (${file.length()} bytes, ${duration}ms)")
         
         file
+        } finally {
+            document.close()
+        }
     }
 
     /**

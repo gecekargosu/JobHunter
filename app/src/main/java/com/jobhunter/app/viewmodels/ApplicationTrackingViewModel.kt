@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.jobhunter.app.data.JobHunterDatabase
+import com.jobhunter.app.data.dao.MonthlyApplications
 import com.jobhunter.app.models.*
 import com.jobhunter.app.services.AtsService
 import com.jobhunter.app.utils.AppLogger
